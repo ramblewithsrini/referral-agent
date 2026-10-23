@@ -1,0 +1,5 @@
+anthropic[bedrock]>=1,<2  # 2.x sends API version 2026-10-21, which Bedrock rejects for Claude 4.6 and earlier
+botocore[crt]
+boto3
+python-dotenv
+pytest
