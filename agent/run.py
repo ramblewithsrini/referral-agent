@@ -22,16 +22,19 @@ from agent import make_client, run_case  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 TRACES = ROOT / "traces"
+STRESS = "--stress" in sys.argv  # Haiku 4.5, hard rules left out of the prompt
+if STRESS:
+    TRACES = TRACES / "stress"
 
 
 def main(args: list[str]) -> None:
-    args = [a for a in args if a != "--redo"]
+    args = [a for a in args if a not in ("--redo", "--stress")]
     cases = json.loads((ROOT / "data" / "cases.json").read_text(encoding="utf-8"))
     if args == ["showcase"]:
         cases = [c for c in cases if c["showcase"]]
     elif args and args != ["all"]:
         cases = [c for c in cases if c["id"] in args]
-    model = os.environ.get("AGENT_MODEL_ID", "eu.anthropic.claude-opus-4-6-v1")
+    model = "eu.anthropic.claude-haiku-4-5-20251001-v1:0" if STRESS else os.environ.get("AGENT_MODEL_ID", "eu.anthropic.claude-opus-4-6-v1")
     client = make_client()
     TRACES.mkdir(exist_ok=True)
     redo = "--redo" in sys.argv
@@ -41,7 +44,7 @@ def main(args: list[str]) -> None:
             continue
         for attempt in range(4):
             try:
-                trace = run_case(client, c, model)
+                trace = run_case(client, c, model, with_rules=not STRESS)
                 break
             except anthropic.RateLimitError:
                 wait = 60 * (attempt + 1)

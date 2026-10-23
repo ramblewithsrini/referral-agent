@@ -1,0 +1,158 @@
+{
+  "case": "R1009",
+  "title": "Card reported lost or stolen",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1009",
+    "merchant_id": "M010",
+    "transaction_reference": "T1008",
+    "merchant_message": "Card declined at the till, the customer has left the card with us."
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, transaction, and card status."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M010"
+      },
+      "result": {
+        "id": "M010",
+        "name": "Greenfield Garden Centre",
+        "owner": "Margaret Hale",
+        "country": "GB",
+        "category": "Garden centre",
+        "onboarded": "2016-04-22",
+        "kyb_status": "verified",
+        "expected_daily": 70,
+        "recent_daily": 72,
+        "days_trading": 3833
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1008"
+      },
+      "result": {
+        "id": "T1008",
+        "merchant_id": "M010",
+        "card_token": "tok_a8",
+        "card_last4": "9015",
+        "amount": 86.2,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "card reported lost or stolen",
+        "at": "2026-10-20T12:15"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M010"
+      },
+      "result": {
+        "merchant_id": "M010",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status and screen both the merchant and owner against sanctions:"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a8"
+      },
+      "result": {
+        "card_token": "tok_a8",
+        "last4": "9015",
+        "status": "lost_or_stolen",
+        "expiry": "2028-02"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Greenfield Garden Centre"
+      },
+      "result": {
+        "query": "Greenfield Garden Centre",
+        "score": 0.29,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Margaret Hale"
+      },
+      "result": {
+        "query": "Margaret Hale",
+        "score": 0.44,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Perfect. I have all the information I need. The investigation shows:\n\n- **Merchant**: Greenfield Garden Centre, established 2016, verified KYB status, good trading profile\n- **Transaction**: £86.20 declined with reason \"card reported lost or stolen\"\n- **Card status**: Confirmed as lost_or_stolen (card ending 9015)\n- **Sanctions screening**: Both merchant and owner clear (low match scores)\n- **History**: No earlier referrals\n\nThis is straightforward: the card was legitimately flagged as lost or stolen, and the decline is correct. The merchant has retained the card as protocol. I'll resolve this with appropriate guidance."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "The card ending 9015 was reported lost or stolen, and the decline is correct. As you've retained the card, please follow your standard procedures for handling a potentially compromised card.",
+        "reason": "Card legitimately flagged as lost or stolen; decline is appropriate.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "The card ending 9015 was reported lost or stolen, and the decline is correct. As you've retained the card, please follow your standard procedures for handling a potentially compromised card.",
+    "reason": "Card legitimately flagged as lost or stolen; decline is appropriate.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "escalate",
+    "queue": "fraud",
+    "rule": "HR2",
+    "overridden": true,
+    "message_to_merchant": "Please do not retry this card. Follow the retained-card procedure in your merchant guide; our team will contact you.",
+    "guardrails": [
+      "Hard rule HR2 applied: the agent proposed 'resolve'."
+    ],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.44,
+      "new_with_spike": false,
+      "lost_or_stolen": true,
+      "amount_gbp": 86.2
+    }
+  },
+  "expected": {
+    "decision": "escalate",
+    "queue": "fraud",
+    "rule": "HR2"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7197,
+    "output_tokens": 608
+  },
+  "seconds": 10.9
+}

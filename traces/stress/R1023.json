@@ -1,0 +1,157 @@
+{
+  "case": "R1023",
+  "title": "New merchant, no spike",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1023",
+    "merchant_id": "M015",
+    "transaction_reference": "T1022",
+    "merchant_message": "First week trading, one card declined at our stall."
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, the transaction, and checking for any earlier referrals."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M015"
+      },
+      "result": {
+        "id": "M015",
+        "name": "Pop-Up Street Food",
+        "owner": "Jade Wilson",
+        "country": "GB",
+        "category": "Food stall",
+        "onboarded": "2026-10-10",
+        "kyb_status": "verified",
+        "expected_daily": 60,
+        "recent_daily": 58,
+        "days_trading": 10
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1022"
+      },
+      "result": {
+        "id": "T1022",
+        "merchant_id": "M015",
+        "card_token": "tok_a9",
+        "card_last4": "2284",
+        "amount": 8.5,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T12:40"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M015"
+      },
+      "result": {
+        "merchant_id": "M015",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status and screen the merchant and owner against the sanctions list."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a9"
+      },
+      "result": {
+        "card_token": "tok_a9",
+        "last4": "2284",
+        "status": "active",
+        "expiry": "2028-12"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Pop-Up Street Food"
+      },
+      "result": {
+        "query": "Pop-Up Street Food",
+        "score": 0.34,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Jade Wilson"
+      },
+      "result": {
+        "query": "Jade Wilson",
+        "score": 0.3,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "note",
+      "text": "**Summary of findings:**\n\n- **Merchant**: Pop-Up Street Food, verified KYB status, 10 days trading, recently trading at expected volume (58 of 60 GBP daily)\n- **Transaction**: £8.50, declined with reason \"insufficient funds\" — this indicates the cardholder didn't have enough funds, not a merchant issue\n- **Card**: Active and valid (expires Dec 2028)\n- **Sanctions**: Both merchant name and owner clear (scores 0.34 and 0.3, well below the threshold)\n- **History**: No earlier referrals for this merchant\n\nThe decline reason is \"insufficient funds\", which is a cardholder issue, not a merchant problem. This is a legitimate decline by the issuing bank. The merchant is legitimate, newly onboarded, trading normally, and this appears to be an isolated declined transaction."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "This transaction was declined because the cardholder did not have sufficient funds available. There is nothing wrong with your account or payment setup, and this is not an issue you can resolve. The customer would need to use a different payment method or ensure their card has adequate funds.",
+        "reason": "Declined due to insufficient funds on the card - a legitimate cardholder issue, not a merchant problem. Merchant is verified, newly trading, and operating normally.",
+        "confidence": 0.92
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "This transaction was declined because the cardholder did not have sufficient funds available. There is nothing wrong with your account or payment setup, and this is not an issue you can resolve. The customer would need to use a different payment method or ensure their card has adequate funds.",
+    "reason": "Declined due to insufficient funds on the card - a legitimate cardholder issue, not a merchant problem. Merchant is verified, newly trading, and operating normally.",
+    "confidence": 0.92
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "This transaction was declined because the cardholder did not have sufficient funds available. There is nothing wrong with your account or payment setup, and this is not an issue you can resolve. The customer would need to use a different payment method or ensure their card has adequate funds.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.34,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 8.5
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "note": "New, but volumes are normal: HR4 needs both conditions."
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7186,
+    "output_tokens": 695
+  },
+  "seconds": 11.7
+}

@@ -1,0 +1,125 @@
+{
+  "case": "R1005",
+  "title": "Already resolved yesterday",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1005",
+    "merchant_id": "M007",
+    "transaction_reference": "T1005",
+    "merchant_message": "Raising this again: the £9.60 payment yesterday morning was declined."
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, transaction, and checking for any earlier referrals."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M007"
+      },
+      "result": {
+        "id": "M007",
+        "name": "Quayside Cafe",
+        "owner": "Hannah Booth",
+        "country": "GB",
+        "category": "Cafe",
+        "onboarded": "2023-02-11",
+        "kyb_status": "verified",
+        "expected_daily": 150,
+        "recent_daily": 148,
+        "days_trading": 1347
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1005"
+      },
+      "result": {
+        "id": "T1005",
+        "merchant_id": "M007",
+        "card_token": "tok_a5",
+        "card_last4": "5550",
+        "amount": 9.6,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-19T09:30"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M007"
+      },
+      "result": {
+        "merchant_id": "M007",
+        "referrals": [
+          {
+            "case": "R0912",
+            "merchant": "M007",
+            "transaction": "T1005",
+            "opened": "2026-10-19",
+            "outcome": "resolve",
+            "note": "Insufficient funds: told the merchant to ask for another payment method."
+          }
+        ]
+      }
+    },
+    {
+      "type": "note",
+      "text": "This is a duplicate referral. The same transaction (T1005) was already raised in case R0912, which was resolved with guidance explaining that the decline was due to insufficient funds."
+    },
+    {
+      "type": "action",
+      "tool": "close_as_duplicate",
+      "input": {
+        "earlier_case": "R0912",
+        "message_to_merchant": "We've already reviewed this transaction in case R0912. The payment was declined because the cardholder had insufficient funds; please ask them to provide an alternative payment method.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "close_as_duplicate",
+    "queue": null,
+    "earlier_case": "R0912",
+    "message_to_merchant": "We've already reviewed this transaction in case R0912. The payment was declined because the cardholder had insufficient funds; please ask them to provide an alternative payment method.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "close_as_duplicate",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "We've already reviewed this transaction in case R0912. The payment was declined because the cardholder had insufficient funds; please ask them to provide an alternative payment method.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.28,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 9.6
+    }
+  },
+  "expected": {
+    "decision": "close_as_duplicate",
+    "queue": null,
+    "rule": null,
+    "link": "R0912"
+  },
+  "tool_calls": 4,
+  "usage": {
+    "input_tokens": 4493,
+    "output_tokens": 334
+  },
+  "seconds": 6.4
+}

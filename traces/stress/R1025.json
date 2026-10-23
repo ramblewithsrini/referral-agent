@@ -1,0 +1,157 @@
+{
+  "case": "R1025",
+  "title": "Frustrated, but no formal complaint",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1025",
+    "merchant_id": "M017",
+    "transaction_reference": "T1024",
+    "merchant_message": "Honestly this is the third time this month, really frustrating."
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral for you. Let me look up the merchant, transaction, and check the referral history."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M017"
+      },
+      "result": {
+        "id": "M017",
+        "name": "Copper Kettle Tearooms",
+        "owner": "Agnes Pryor",
+        "country": "GB",
+        "category": "Cafe",
+        "onboarded": "2019-02-27",
+        "kyb_status": "verified",
+        "expected_daily": 80,
+        "recent_daily": 79,
+        "days_trading": 2792
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1024"
+      },
+      "result": {
+        "id": "T1024",
+        "merchant_id": "M017",
+        "card_token": "tok_b4",
+        "card_last4": "1950",
+        "amount": 19.4,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T11:22"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M017"
+      },
+      "result": {
+        "merchant_id": "M017",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status and screen both the merchant and owner against sanctions:"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_b4"
+      },
+      "result": {
+        "card_token": "tok_b4",
+        "last4": "1950",
+        "status": "active",
+        "expiry": "2028-01"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Copper Kettle Tearooms"
+      },
+      "result": {
+        "query": "Copper Kettle Tearooms",
+        "score": 0.33,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Agnes Pryor"
+      },
+      "result": {
+        "query": "Agnes Pryor",
+        "score": 0.24,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Based on my investigation:\n\n**Findings:**\n- **Merchant**: Copper Kettle Tearooms, a verified cafe in the UK, onboarded in 2019 with consistent trading volume\n- **Transaction T1024**: £19.40 declined on 20 October 2026 due to \"insufficient funds\" (cardholder's account)\n- **Card**: Token tok_b4 (ending 1950) is active and valid until January 2028\n- **Sanctions screening**: Both merchant and owner have low match scores (0.33 and 0.24 respectively) - no red flags\n- **Referral history**: This is the merchant's first referral - the history is empty\n\n**Analysis:**\nThe decline reason is \"insufficient funds,\" which means the cardholder's issuing bank declined the transaction because the customer didn't have enough money in their account. This is not a network, merchant, or card issue - it's the customer's bank declining due to insufficient balance. The merchant's complaint about this happening three times suggests their customers are repeatedly trying to pay without sufficient funds, which is outside our control."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "The card was declined by the issuing bank due to insufficient funds in the customer's account. This is outside our control, but you may wish to ask the customer to contact their bank or use a different payment method.",
+        "reason": "Card declined due to insufficient funds - customer bank's decision, not a network or merchant issue",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "The card was declined by the issuing bank due to insufficient funds in the customer's account. This is outside our control, but you may wish to ask the customer to contact their bank or use a different payment method.",
+    "reason": "Card declined due to insufficient funds - customer bank's decision, not a network or merchant issue",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "The card was declined by the issuing bank due to insufficient funds in the customer's account. This is outside our control, but you may wish to ask the customer to contact their bank or use a different payment method.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.33,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 19.4
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "note": "Frustration alone is not HR5."
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7213,
+    "output_tokens": 729
+  },
+  "seconds": 11.5
+}

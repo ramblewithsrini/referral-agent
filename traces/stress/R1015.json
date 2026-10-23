@@ -1,0 +1,143 @@
+{
+  "case": "R1015",
+  "title": "Transaction look-up times out",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1015",
+    "merchant_id": "M017",
+    "transaction_reference": "T1014",
+    "merchant_message": "Card declined at 3pm, can you check?"
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, the transaction, and checking for any earlier referrals."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M017"
+      },
+      "result": {
+        "id": "M017",
+        "name": "Copper Kettle Tearooms",
+        "owner": "Agnes Pryor",
+        "country": "GB",
+        "category": "Cafe",
+        "onboarded": "2019-02-27",
+        "kyb_status": "verified",
+        "expected_daily": 80,
+        "recent_daily": 79,
+        "days_trading": 2792
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1014"
+      },
+      "error": "get_transaction timed out"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M017"
+      },
+      "result": {
+        "merchant_id": "M017",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "The transaction lookup timed out. Let me retry it:"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1014"
+      },
+      "error": "get_transaction timed out"
+    },
+    {
+      "type": "note",
+      "text": "The transaction lookup has failed twice. Let me check the card status and screen both the merchant and owner against sanctions while I still have that information:"
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Copper Kettle Tearooms"
+      },
+      "result": {
+        "query": "Copper Kettle Tearooms",
+        "score": 0.33,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Agnes Pryor"
+      },
+      "result": {
+        "query": "Agnes Pryor",
+        "score": 0.24,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "note",
+      "text": "The sanctions screening shows low match scores (0.33 and 0.24), indicating no sanctions concerns. However, I cannot retrieve the transaction details due to persistent timeouts. Without the transaction data (including the decline reason and card token), I cannot fully investigate the declined payment.\n\nGiven this situation, I'll escalate to human review:"
+    },
+    {
+      "type": "action",
+      "tool": "send_to_human_review",
+      "input": {
+        "reason": "Transaction lookup failed twice. Unable to retrieve decline reason, card token, or transaction details needed to investigate why the payment was declined. Merchant M017 (Copper Kettle Tearooms) is legitimate and verified with no sanctions concerns, but the specific issue cannot be determined without transaction data.",
+        "confidence": 0.15
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "human_review",
+    "queue": null,
+    "reason": "Transaction lookup failed twice. Unable to retrieve decline reason, card token, or transaction details needed to investigate why the payment was declined. Merchant M017 (Copper Kettle Tearooms) is legitimate and verified with no sanctions concerns, but the specific issue cannot be determined without transaction data.",
+    "confidence": 0.15
+  },
+  "outcome": {
+    "decision": "human_review",
+    "queue": null,
+    "rule": "HR6",
+    "overridden": false,
+    "message_to_merchant": "Thank you. A colleague is looking into this and will update you shortly.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [
+        "get_transaction"
+      ],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.33,
+      "new_with_spike": false
+    }
+  },
+  "expected": {
+    "decision": "human_review",
+    "queue": null,
+    "rule": "HR6"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 9498,
+    "output_tokens": 571
+  },
+  "seconds": 12.6
+}

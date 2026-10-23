@@ -1,0 +1,158 @@
+{
+  "case": "R1007",
+  "title": "'Do not honour' with no clear cause",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1007",
+    "merchant_id": "M005",
+    "transaction_reference": "T1006",
+    "merchant_message": "A £349 sale was declined with 'do not honour'. What does that mean and what should we do?"
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, transaction, and checking the card status."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M005"
+      },
+      "result": {
+        "id": "M005",
+        "name": "Brightwater Electronics",
+        "owner": "Daniel Reyes",
+        "country": "GB",
+        "category": "Electronics",
+        "onboarded": "2020-01-15",
+        "kyb_status": "verified",
+        "expected_daily": 90,
+        "recent_daily": 95,
+        "days_trading": 2470
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1006"
+      },
+      "result": {
+        "id": "T1006",
+        "merchant_id": "M005",
+        "card_token": "tok_a6",
+        "card_last4": "3348",
+        "amount": 349.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "do not honour",
+        "at": "2026-10-20T13:02"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M005"
+      },
+      "result": {
+        "merchant_id": "M005",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status and screen both the merchant and owner against sanctions:"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a6"
+      },
+      "result": {
+        "card_token": "tok_a6",
+        "last4": "3348",
+        "status": "active",
+        "expiry": "2028-08"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Brightwater Electronics"
+      },
+      "result": {
+        "query": "Brightwater Electronics",
+        "score": 0.32,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Daniel Reyes"
+      },
+      "result": {
+        "query": "Daniel Reyes",
+        "score": 0.29,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "note",
+      "text": "**Summary of findings:**\n\n- **Merchant**: Brightwater Electronics is a legitimate, verified GB-based electronics retailer with 4+ years of trading history\n- **Transaction**: £349 sale declined with \"do not honour\" – a generic issuer response\n- **Card**: Token tok_a6 is active and not expired\n- **Sanctions**: Both merchant and owner have very low match scores (0.32 and 0.29) – no concerns\n- **History**: No prior referrals for this merchant\n\nThe \"do not honour\" decline is a generic response from the card issuer that doesn't specify the underlying issue. It could be due to various reasons at the cardholder's bank (insufficient funds, fraud controls, account restrictions, etc.). Since the card is active and the merchant is legitimate, I need to escalate this for specialist investigation."
+    },
+    {
+      "type": "action",
+      "tool": "escalate",
+      "input": {
+        "queue": "fraud",
+        "reason": "Generic \"do not honour\" decline with active card and legitimate merchant; underlying cause unclear and requires issuer investigation",
+        "message_to_merchant": "The decline with \"do not honour\" is a generic response from the cardholder's bank and typically relates to their account restrictions or security settings rather than an issue with your merchant account. We've escalated this for specialist review to help establish the specific reason and advise further.",
+        "confidence": 0.6
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "escalate",
+    "queue": "fraud",
+    "reason": "Generic \"do not honour\" decline with active card and legitimate merchant; underlying cause unclear and requires issuer investigation",
+    "message_to_merchant": "The decline with \"do not honour\" is a generic response from the cardholder's bank and typically relates to their account restrictions or security settings rather than an issue with your merchant account. We've escalated this for specialist review to help establish the specific reason and advise further.",
+    "confidence": 0.6
+  },
+  "outcome": {
+    "decision": "escalate",
+    "queue": "fraud",
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "The decline with \"do not honour\" is a generic response from the cardholder's bank and typically relates to their account restrictions or security settings rather than an issue with your merchant account. We've escalated this for specialist review to help establish the specific reason and advise further.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.32,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 349.0
+    }
+  },
+  "expected": {
+    "decision": "human_review",
+    "queue": null,
+    "rule": null,
+    "note": "The issuer gave no reason; an honest answer needs a person. A low threshold lets the agent auto-resolve this, wrongly."
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7224,
+    "output_tokens": 687
+  },
+  "seconds": 10.6
+}

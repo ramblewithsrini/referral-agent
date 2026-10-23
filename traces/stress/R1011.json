@@ -1,0 +1,157 @@
+{
+  "case": "R1011",
+  "title": "Five-day-old merchant with a sudden spike",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1011",
+    "merchant_id": "M009",
+    "transaction_reference": "T1010",
+    "merchant_message": "Lots of declines today. We're getting huge traffic, please lift whatever limit is blocking us."
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, the transaction, and checking their history."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M009"
+      },
+      "result": {
+        "id": "M009",
+        "name": "FlashDeals Online",
+        "owner": "Ryan Kessler",
+        "country": "GB",
+        "category": "Online marketplace",
+        "onboarded": "2026-10-15",
+        "kyb_status": "pending_review",
+        "expected_daily": 50,
+        "recent_daily": 410,
+        "days_trading": 5
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1010"
+      },
+      "result": {
+        "id": "T1010",
+        "merchant_id": "M009",
+        "card_token": "tok_a2",
+        "card_last4": "0932",
+        "amount": 129.99,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T17:55"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M009"
+      },
+      "result": {
+        "merchant_id": "M009",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status and screen the merchant and owner against sanctions:"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a2"
+      },
+      "result": {
+        "card_token": "tok_a2",
+        "last4": "0932",
+        "status": "active",
+        "expiry": "2028-04"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "FlashDeals Online"
+      },
+      "result": {
+        "query": "FlashDeals Online",
+        "score": 0.31,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Ryan Kessler"
+      },
+      "result": {
+        "query": "Ryan Kessler",
+        "score": 0.38,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Based on my investigation:\n\n**Key findings:**\n- FlashDeals Online is only 5 days into trading with pending KYB review\n- Expected daily volume: 50 transactions; recent daily: 410 (8× higher than expected)\n- The specific transaction (T1010) declined due to \"insufficient funds\" on the cardholder's end, not a merchant limit\n- Card is active and valid\n- No sanctions match concerns (scores 0.31 and 0.38 are below threshold)\n- No earlier referrals for this merchant\n\n**Analysis:**\nThe merchant is claiming \"huge traffic\" and requesting limits to be lifted, but the decline reason is \"insufficient funds\"—this is an issuer-side cardholder issue, not a network limit. However, the merchant's dramatically elevated volume (8× expected) combined with their pending KYB status is concerning and warrants specialist review of their account."
+    },
+    {
+      "type": "action",
+      "tool": "escalate",
+      "input": {
+        "queue": "merchant_risk",
+        "reason": "Merchant onboarded 5 days ago with pending KYB review. Recent daily volume is 410 transactions versus 50 expected (8× baseline). Transaction T1010 declined due to insufficient funds, not network limits. Elevated volume pattern with incomplete compliance review requires specialist assessment.",
+        "message_to_merchant": "Thank you for your referral. The transaction declined due to insufficient funds on the cardholder's account, not a network limit. Your account is currently undergoing compliance review; we'll be in touch as that progresses.",
+        "confidence": 0.75
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "escalate",
+    "queue": "merchant_risk",
+    "reason": "Merchant onboarded 5 days ago with pending KYB review. Recent daily volume is 410 transactions versus 50 expected (8× baseline). Transaction T1010 declined due to insufficient funds, not network limits. Elevated volume pattern with incomplete compliance review requires specialist assessment.",
+    "message_to_merchant": "Thank you for your referral. The transaction declined due to insufficient funds on the cardholder's account, not a network limit. Your account is currently undergoing compliance review; we'll be in touch as that progresses.",
+    "confidence": 0.75
+  },
+  "outcome": {
+    "decision": "escalate",
+    "queue": "merchant_risk",
+    "rule": "HR4",
+    "overridden": false,
+    "message_to_merchant": "Your account is being reviewed by our merchant team. We'll be in touch shortly.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.38,
+      "new_with_spike": true,
+      "lost_or_stolen": false,
+      "amount_gbp": 129.99
+    }
+  },
+  "expected": {
+    "decision": "escalate",
+    "queue": "merchant_risk",
+    "rule": "HR4"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7214,
+    "output_tokens": 735
+  },
+  "seconds": 12.5
+}

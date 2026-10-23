@@ -1,0 +1,62 @@
+{
+  "case": "R1006",
+  "title": "No transaction reference",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1006",
+    "merchant_id": "M012",
+    "transaction_reference": null,
+    "merchant_message": "One of our customers had a payment declined this afternoon. Please look into it."
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "The referral doesn't include a transaction reference, which I need to investigate the specific declined payment. Let me ask the merchant for this detail."
+    },
+    {
+      "type": "action",
+      "tool": "request_information",
+      "input": {
+        "missing": "transaction reference or ID",
+        "message_to_merchant": "Thank you for raising this referral. To investigate the declined payment, we'll need the transaction reference or ID for the declined payment this afternoon. Please provide this detail and we'll look into it straight away.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "request_information",
+    "queue": null,
+    "missing": "transaction reference or ID",
+    "message_to_merchant": "Thank you for raising this referral. To investigate the declined payment, we'll need the transaction reference or ID for the declined payment this afternoon. Please provide this detail and we'll look into it straight away.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "request_information",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you for raising this referral. To investigate the declined payment, we'll need the transaction reference or ID for the declined payment this afternoon. Please provide this detail and we'll look into it straight away.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.37,
+      "new_with_spike": false
+    }
+  },
+  "expected": {
+    "decision": "request_information",
+    "queue": null,
+    "rule": null,
+    "ask": "transaction reference or time and amount"
+  },
+  "tool_calls": 1,
+  "usage": {
+    "input_tokens": 1989,
+    "output_tokens": 166
+  },
+  "seconds": 3.6
+}

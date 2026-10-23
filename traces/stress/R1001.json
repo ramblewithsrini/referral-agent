@@ -1,0 +1,122 @@
+{
+  "case": "R1001",
+  "title": "Expired card",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1001",
+    "merchant_id": "M001",
+    "transaction_reference": "T1001",
+    "merchant_message": "Customer's card keeps getting declined at the till. Can you tell us why?"
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, transaction, and card status."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M001"
+      },
+      "result": {
+        "id": "M001",
+        "name": "Harbour Lane Bakery",
+        "owner": "Priya Nair",
+        "country": "GB",
+        "category": "Bakery",
+        "onboarded": "2021-03-14",
+        "kyb_status": "verified",
+        "expected_daily": 120,
+        "recent_daily": 130,
+        "days_trading": 2046
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1001"
+      },
+      "result": {
+        "id": "T1001",
+        "merchant_id": "M001",
+        "card_token": "tok_a1",
+        "card_last4": "4417",
+        "amount": 18.4,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "card expired",
+        "at": "2026-10-20T08:12"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status to confirm:"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a1"
+      },
+      "result": {
+        "card_token": "tok_a1",
+        "last4": "4417",
+        "status": "expired",
+        "expiry": "2026-09"
+      }
+    },
+    {
+      "type": "note",
+      "text": "The investigation is clear. The transaction was declined because the card (ending in 4417) has expired. The card status confirms it expired in September 2026."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "The card was declined because it has expired. Please ask your customer to use a different card or to contact their card issuer to request a replacement.",
+        "reason": "Card expired - decline reason confirmed by card status check",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "The card was declined because it has expired. Please ask your customer to use a different card or to contact their card issuer to request a replacement.",
+    "reason": "Card expired - decline reason confirmed by card status check",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "The card was declined because it has expired. Please ask your customer to use a different card or to contact their card issuer to request a replacement.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.33,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 18.4
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "guidance": "card has expired; ask for another card"
+  },
+  "tool_calls": 4,
+  "usage": {
+    "input_tokens": 6804,
+    "output_tokens": 353
+  },
+  "seconds": 10.1
+}

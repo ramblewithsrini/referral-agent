@@ -1,0 +1,166 @@
+{
+  "case": "R1003",
+  "title": "Wrong security code keyed in",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1003",
+    "merchant_id": "M004",
+    "transaction_reference": "T1003",
+    "merchant_message": "Declined at the counter, staff think they typed something wrong."
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, transaction, and card status."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M004"
+      },
+      "result": {
+        "id": "M004",
+        "name": "Riverside Pharmacy",
+        "owner": "Samuel Okafor",
+        "country": "GB",
+        "category": "Pharmacy",
+        "onboarded": "2018-05-09",
+        "kyb_status": "verified",
+        "expected_daily": 200,
+        "recent_daily": 210,
+        "days_trading": 3086
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1003"
+      },
+      "result": {
+        "id": "T1003",
+        "merchant_id": "M004",
+        "card_token": "tok_a3",
+        "card_last4": "7781",
+        "amount": 27.95,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "security code mismatch",
+        "at": "2026-10-20T11:40"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M004"
+      },
+      "result": {
+        "merchant_id": "M004",
+        "referrals": [
+          {
+            "case": "R0901",
+            "merchant": "M004",
+            "transaction": "T0899",
+            "opened": "2026-10-02",
+            "outcome": "resolve",
+            "note": "Security code mismatch: re-key guidance sent."
+          }
+        ]
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status and screen the merchant and owner against sanctions:"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a3"
+      },
+      "result": {
+        "card_token": "tok_a3",
+        "last4": "7781",
+        "status": "active",
+        "expiry": "2027-11"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Riverside Pharmacy"
+      },
+      "result": {
+        "query": "Riverside Pharmacy",
+        "score": 0.31,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Samuel Okafor"
+      },
+      "result": {
+        "query": "Samuel Okafor",
+        "score": 0.37,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "note",
+      "text": "**Investigation summary:**\n\n- **Merchant:** Riverside Pharmacy, verified KYB status, 8+ years trading, established daily volume match\n- **Transaction:** £27.95 on 20 Oct 2026, declined with \"security code mismatch\"\n- **Card:** Active, not expired or compromised\n- **Sanctions screening:** Clean (low scores, no match)\n- **Referral history:** One earlier case on 2 Oct 2026 with the same decline reason; guidance was sent then\n\nThe decline reason \"security code mismatch\" suggests the customer or staff entered an incorrect CVV during the payment attempt. The merchant's note confirms this—staff believe they may have typed something wrong. The earlier referral history shows this merchant received guidance on this exact issue just 18 days ago.\n\nI'll resolve this with appropriate guidance:"
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "The payment was declined because the security code entered didn't match the card details. Please ask the customer to re-enter the security code carefully, ensuring all three digits are correct.",
+        "reason": "Security code mismatch: clear decline reason. Card active. Merchant has received similar guidance before (case R0901). Staff error during key entry.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "The payment was declined because the security code entered didn't match the card details. Please ask the customer to re-enter the security code carefully, ensuring all three digits are correct.",
+    "reason": "Security code mismatch: clear decline reason. Card active. Merchant has received similar guidance before (case R0901). Staff error during key entry.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "The payment was declined because the security code entered didn't match the card details. Please ask the customer to re-enter the security code carefully, ensuring all three digits are correct.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.37,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 27.95
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "guidance": "security code mismatch; re-key carefully or use chip and PIN"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7301,
+    "output_tokens": 661
+  },
+  "seconds": 11.9
+}

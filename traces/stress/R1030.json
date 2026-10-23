@@ -1,0 +1,154 @@
+{
+  "case": "R1030",
+  "title": "'Do not honour' on a CAD sale",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1030",
+    "merchant_id": "M003",
+    "transaction_reference": "T1028",
+    "merchant_message": "Declined, 'do not honour'. Any idea?"
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, transaction, and checking the card status."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M003"
+      },
+      "result": {
+        "id": "M003",
+        "name": "Maple & Pine Outfitters",
+        "owner": "Claire Dubois",
+        "country": "CA",
+        "category": "Outdoor clothing",
+        "onboarded": "2022-11-20",
+        "kyb_status": "verified",
+        "expected_daily": 60,
+        "recent_daily": 55,
+        "days_trading": 1430
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1028"
+      },
+      "result": {
+        "id": "T1028",
+        "merchant_id": "M003",
+        "card_token": "tok_b5",
+        "card_last4": "7307",
+        "amount": 154.0,
+        "currency": "CAD",
+        "terminal_currency": "CAD",
+        "decline_reason": "do not honour",
+        "at": "2026-10-20T16:18"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M003"
+      },
+      "result": {
+        "merchant_id": "M003",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status and screen both the merchant and owner against sanctions lists."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_b5"
+      },
+      "result": {
+        "card_token": "tok_b5",
+        "last4": "7307",
+        "status": "active",
+        "expiry": "2027-10"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Maple & Pine Outfitters"
+      },
+      "result": {
+        "query": "Maple & Pine Outfitters",
+        "score": 0.32,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Claire Dubois"
+      },
+      "result": {
+        "query": "Claire Dubois",
+        "score": 0.4,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Based on my investigation:\n\n**Findings:**\n- Merchant: Maple & Pine Outfitters (established Nov 2022, verified KYB, Canada-based outdoor clothing retailer)\n- Transaction: CAD $154.00 declined with \"do not honour\" on 20 Oct 2026\n- Card: Active, not expired or lost/stolen (tok_b5, expires Oct 2027)\n- Sanctions screening: Both merchant and owner clear (low match scores: 0.32 and 0.4)\n- No earlier referrals for this merchant\n\nThe decline reason is a generic \"do not honour\" from the card issuer, which doesn't indicate the underlying problem. This could stem from issuer-side fraud checks, insufficient funds, or other issuer policies. The card itself is active and valid, so the issue lies with the cardholder's bank.\n\nGiven the lack of specific information about what caused the decline, I'll send this to human review for specialist assessment."
+    },
+    {
+      "type": "action",
+      "tool": "send_to_human_review",
+      "input": {
+        "reason": "Transaction declined with generic 'do not honour' reason. Card is active and valid; merchant is verified with good standing. No specific decline indicator available. Requires specialist investigation into issuer policies or cardholder account status.",
+        "confidence": 0.3
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "human_review",
+    "queue": null,
+    "reason": "Transaction declined with generic 'do not honour' reason. Card is active and valid; merchant is verified with good standing. No specific decline indicator available. Requires specialist investigation into issuer policies or cardholder account status.",
+    "confidence": 0.3
+  },
+  "outcome": {
+    "decision": "human_review",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you. A colleague is looking into this and will update you shortly.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.4,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 83.16
+    }
+  },
+  "expected": {
+    "decision": "human_review",
+    "queue": null,
+    "rule": null
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7195,
+    "output_tokens": 661
+  },
+  "seconds": 11.1
+}

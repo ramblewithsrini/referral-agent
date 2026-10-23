@@ -1,0 +1,157 @@
+{
+  "case": "R1002",
+  "title": "Insufficient funds",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1002",
+    "merchant_id": "M002",
+    "transaction_reference": "T1002",
+    "merchant_message": "A £640 bike sale was declined twice. The customer says the card is fine."
+  },
+  "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
+  "rules_in_prompt": false,
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll investigate this referral by looking up the merchant, the transaction, the card status, and the merchant's earlier referrals."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M002"
+      },
+      "result": {
+        "id": "M002",
+        "name": "Northgate Cycles",
+        "owner": "Tom Ellery",
+        "country": "GB",
+        "category": "Sporting goods",
+        "onboarded": "2019-07-02",
+        "kyb_status": "verified",
+        "expected_daily": 40,
+        "recent_daily": 38,
+        "days_trading": 2667
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1002"
+      },
+      "result": {
+        "id": "T1002",
+        "merchant_id": "M002",
+        "card_token": "tok_a2",
+        "card_last4": "0932",
+        "amount": 640.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T10:05"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M002"
+      },
+      "result": {
+        "merchant_id": "M002",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now I'll check the card status and screen both the merchant name and owner name against the sanctions list."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a2"
+      },
+      "result": {
+        "card_token": "tok_a2",
+        "last4": "0932",
+        "status": "active",
+        "expiry": "2028-04"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Northgate Cycles"
+      },
+      "result": {
+        "query": "Northgate Cycles",
+        "score": 0.3,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Tom Ellery"
+      },
+      "result": {
+        "query": "Tom Ellery",
+        "score": 0.33,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Based on my investigation:\n\n**Findings:**\n- **Merchant**: Northgate Cycles, a established bike shop (GB, onboarded 2019, verified KYB status)\n- **Transaction**: £640 decline on 20 Oct 2026 with decline reason \"insufficient funds\"\n- **Card**: Active and valid (expires April 2028)\n- **Sanctions screening**: Both merchant and owner have low match scores (0.3 and 0.33), no concerns\n- **Referral history**: No earlier referrals\n\n**Analysis:**\nThe transaction was declined due to insufficient funds on the customer's card. The card itself is active and valid, so the issue is not with the card status. The customer's assertion that \"the card is fine\" is partially correct—the card is not expired, lost, or stolen—but it doesn't have sufficient balance for this £640 purchase.\n\nThe merchant has acted appropriately by raising the referral. I should provide clear guidance that this is a customer-side funding issue."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "The payment was declined because the customer's card had insufficient funds available. The card itself is active and valid. Please ask the customer to check their balance or use a different payment method.",
+        "reason": "Transaction declined due to insufficient funds on the customer's card; card is active and not the issue",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "The payment was declined because the customer's card had insufficient funds available. The card itself is active and valid. Please ask the customer to check their balance or use a different payment method.",
+    "reason": "Transaction declined due to insufficient funds on the customer's card; card is active and not the issue",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "The payment was declined because the customer's card had insufficient funds available. The card itself is active and valid. Please ask the customer to check their balance or use a different payment method.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.33,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 640.0
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "guidance": "declined by the card issuer for insufficient funds; suggest another payment method"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7232,
+    "output_tokens": 705
+  },
+  "seconds": 12.1
+}
