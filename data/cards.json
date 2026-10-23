@@ -1,0 +1,86 @@
+[
+  {
+    "token": "tok_a1",
+    "last4": "4417",
+    "status": "expired",
+    "expiry": "2026-09"
+  },
+  {
+    "token": "tok_a2",
+    "last4": "0932",
+    "status": "active",
+    "expiry": "2028-04"
+  },
+  {
+    "token": "tok_a3",
+    "last4": "7781",
+    "status": "active",
+    "expiry": "2027-11"
+  },
+  {
+    "token": "tok_a4",
+    "last4": "1206",
+    "status": "active",
+    "expiry": "2029-01"
+  },
+  {
+    "token": "tok_a5",
+    "last4": "5550",
+    "status": "active",
+    "expiry": "2027-06"
+  },
+  {
+    "token": "tok_a6",
+    "last4": "3348",
+    "status": "active",
+    "expiry": "2028-08"
+  },
+  {
+    "token": "tok_a7",
+    "last4": "6620",
+    "status": "active",
+    "expiry": "2027-03"
+  },
+  {
+    "token": "tok_a8",
+    "last4": "9015",
+    "status": "lost_or_stolen",
+    "expiry": "2028-02"
+  },
+  {
+    "token": "tok_a9",
+    "last4": "2284",
+    "status": "active",
+    "expiry": "2028-12"
+  },
+  {
+    "token": "tok_b1",
+    "last4": "8873",
+    "status": "expired",
+    "expiry": "2026-08"
+  },
+  {
+    "token": "tok_b2",
+    "last4": "4102",
+    "status": "active",
+    "expiry": "2027-09"
+  },
+  {
+    "token": "tok_b3",
+    "last4": "6631",
+    "status": "lost_or_stolen",
+    "expiry": "2029-05"
+  },
+  {
+    "token": "tok_b4",
+    "last4": "1950",
+    "status": "active",
+    "expiry": "2028-01"
+  },
+  {
+    "token": "tok_b5",
+    "last4": "7307",
+    "status": "active",
+    "expiry": "2027-10"
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "S01",
+    "name": "Viktor Aranova",
+    "type": "person",
+    "country": "GB"
+  },
+  {
+    "id": "S02",
+    "name": "Orion Trading Ltd",
+    "type": "organisation",
+    "country": "GB"
+  },
+  {
+    "id": "S03",
+    "name": "Dmitri Kalenko",
+    "type": "person",
+    "country": "CY"
+  },
+  {
+    "id": "S04",
+    "name": "Blue Meridian Holdings",
+    "type": "organisation",
+    "country": "AE"
+  }
+]

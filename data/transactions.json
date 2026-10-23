@@ -1,0 +1,282 @@
+[
+  {
+    "id": "T1001",
+    "merchant": "M001",
+    "card": "tok_a1",
+    "amount": 18.4,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "card expired",
+    "at": "2026-10-20T08:12"
+  },
+  {
+    "id": "T1002",
+    "merchant": "M002",
+    "card": "tok_a2",
+    "amount": 640.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T10:05"
+  },
+  {
+    "id": "T1003",
+    "merchant": "M004",
+    "card": "tok_a3",
+    "amount": 27.95,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "security code mismatch",
+    "at": "2026-10-20T11:40"
+  },
+  {
+    "id": "T1004",
+    "merchant": "M003",
+    "card": "tok_a4",
+    "amount": 212.0,
+    "currency": "CAD",
+    "terminal_currency": "GBP",
+    "decline_reason": "currency not supported by terminal configuration",
+    "at": "2026-10-20T15:22"
+  },
+  {
+    "id": "T1005",
+    "merchant": "M007",
+    "card": "tok_a5",
+    "amount": 9.6,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-19T09:30"
+  },
+  {
+    "id": "T1006",
+    "merchant": "M005",
+    "card": "tok_a6",
+    "amount": 349.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "do not honour",
+    "at": "2026-10-20T13:02"
+  },
+  {
+    "id": "T1007",
+    "merchant": "M006",
+    "card": "tok_a7",
+    "amount": 1250.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T14:47"
+  },
+  {
+    "id": "T1008",
+    "merchant": "M010",
+    "card": "tok_a8",
+    "amount": 86.2,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "card reported lost or stolen",
+    "at": "2026-10-20T12:15"
+  },
+  {
+    "id": "T1009",
+    "merchant": "M008",
+    "card": "tok_a9",
+    "amount": 7800.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T16:10"
+  },
+  {
+    "id": "T1010",
+    "merchant": "M009",
+    "card": "tok_a2",
+    "amount": 129.99,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T17:55"
+  },
+  {
+    "id": "T1011",
+    "merchant": "M011",
+    "card": "tok_a3",
+    "amount": 95.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "do not honour",
+    "at": "2026-10-20T10:48"
+  },
+  {
+    "id": "T1012",
+    "merchant": "M012",
+    "card": "tok_a4",
+    "amount": 14.99,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "security code mismatch",
+    "at": "2026-10-20T12:31"
+  },
+  {
+    "id": "T1013",
+    "merchant": "M004",
+    "card": "tok_a5",
+    "amount": 42.1,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T09:20"
+  },
+  {
+    "id": "T1014",
+    "merchant": "M017",
+    "card": "tok_b1",
+    "amount": 11.25,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "card expired",
+    "at": "2026-10-20T15:05"
+  },
+  {
+    "id": "T1015",
+    "merchant": "M008",
+    "card": "tok_b2",
+    "amount": 5200.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T11:11"
+  },
+  {
+    "id": "T1016",
+    "merchant": "M005",
+    "card": "tok_b4",
+    "amount": 4950.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T14:02"
+  },
+  {
+    "id": "T1017",
+    "merchant": "M012",
+    "card": "tok_b5",
+    "amount": 22.5,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "security code mismatch",
+    "at": "2026-10-20T16:44"
+  },
+  {
+    "id": "T1018",
+    "merchant": "M001",
+    "card": "tok_b1",
+    "amount": 6.8,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "card expired",
+    "at": "2026-10-20T07:55"
+  },
+  {
+    "id": "T1019",
+    "merchant": "M013",
+    "card": "tok_a6",
+    "amount": 880.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "do not honour",
+    "at": "2026-10-20T13:37"
+  },
+  {
+    "id": "T1020",
+    "merchant": "M014",
+    "card": "tok_a7",
+    "amount": 310.0,
+    "currency": "EUR",
+    "terminal_currency": "EUR",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T10:26"
+  },
+  {
+    "id": "T1021",
+    "merchant": "M002",
+    "card": "tok_b3",
+    "amount": 420.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "card reported lost or stolen",
+    "at": "2026-10-20T11:58"
+  },
+  {
+    "id": "T1022",
+    "merchant": "M015",
+    "card": "tok_a9",
+    "amount": 8.5,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T12:40"
+  },
+  {
+    "id": "T1023",
+    "merchant": "M016",
+    "card": "tok_b2",
+    "amount": 64.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "card expired",
+    "at": "2026-10-20T18:03"
+  },
+  {
+    "id": "T1024",
+    "merchant": "M017",
+    "card": "tok_b4",
+    "amount": 19.4,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "insufficient funds",
+    "at": "2026-10-20T11:22"
+  },
+  {
+    "id": "T1025",
+    "merchant": "M018",
+    "card": "tok_b5",
+    "amount": 275.0,
+    "currency": "EUR",
+    "terminal_currency": "GBP",
+    "decline_reason": "currency not supported by terminal configuration",
+    "at": "2026-10-20T14:15"
+  },
+  {
+    "id": "T1026",
+    "merchant": "M010",
+    "card": "tok_a3",
+    "amount": 58.0,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "security code mismatch",
+    "at": "2026-10-20T09:51"
+  },
+  {
+    "id": "T1027",
+    "merchant": "M007",
+    "card": "tok_a4",
+    "amount": 12.3,
+    "currency": "GBP",
+    "terminal_currency": "GBP",
+    "decline_reason": "card expired",
+    "at": "2026-10-20T08:47"
+  },
+  {
+    "id": "T1028",
+    "merchant": "M003",
+    "card": "tok_b5",
+    "amount": 154.0,
+    "currency": "CAD",
+    "terminal_currency": "CAD",
+    "decline_reason": "do not honour",
+    "at": "2026-10-20T16:18"
+  }
+]

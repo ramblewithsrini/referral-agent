@@ -1,0 +1,26 @@
+[
+  {
+    "case": "R0912",
+    "merchant": "M007",
+    "transaction": "T1005",
+    "opened": "2026-10-19",
+    "outcome": "resolve",
+    "note": "Insufficient funds: told the merchant to ask for another payment method."
+  },
+  {
+    "case": "R0877",
+    "merchant": "M001",
+    "transaction": "T0870",
+    "opened": "2026-09-10",
+    "outcome": "resolve",
+    "note": "Card expired: asked for another card."
+  },
+  {
+    "case": "R0901",
+    "merchant": "M004",
+    "transaction": "T0899",
+    "opened": "2026-10-02",
+    "outcome": "resolve",
+    "note": "Security code mismatch: re-key guidance sent."
+  }
+]

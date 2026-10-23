@@ -1,0 +1,74 @@
+{
+  "network": "Srini Pay",
+  "description": "Governance policy for the referral-triage agent. Enforced in code by the policy layer, outside the model: the agent proposes, the policy layer decides whether the action may run.",
+  "approved_model": "Claude Haiku on Amazon Bedrock",
+  "approved_tools": [
+    "get_merchant",
+    "get_transaction",
+    "get_card_status",
+    "screen_sanctions",
+    "get_referral_history",
+    "resolve_with_guidance",
+    "request_information",
+    "close_as_duplicate",
+    "escalate"
+  ],
+  "data_protection": {
+    "card_data_visible_to_agent": "token and last four digits only",
+    "never_disclose_to_merchant": [
+      "full card number",
+      "cardholder name or contact details",
+      "the reason for any financial-crime or fraud escalation"
+    ]
+  },
+  "limits": {
+    "max_tool_calls_per_case": 8,
+    "tool_retries": 1,
+    "auto_resolve_confidence": 0.8
+  },
+  "hard_rules": [
+    {
+      "id": "HR1",
+      "name": "Sanctions match",
+      "when": "screen_sanctions returns a match score of 0.85 or more for the merchant or its owner",
+      "then": "escalate to financial_crime; tell the merchant only that the case is under review (no tipping-off)"
+    },
+    {
+      "id": "HR2",
+      "name": "Lost or stolen card",
+      "when": "get_card_status returns lost_or_stolen",
+      "then": "escalate to fraud; give the merchant the standard retained-card procedure only"
+    },
+    {
+      "id": "HR3",
+      "name": "High value",
+      "when": "transaction amount is above GBP 5,000 (or its equivalent)",
+      "then": "escalate to approvals for a person to sign off, even if the cause is simple"
+    },
+    {
+      "id": "HR4",
+      "name": "New merchant with a spike",
+      "when": "merchant onboarded fewer than 30 days ago AND recent volume is more than 3x its expected volume",
+      "then": "escalate to merchant_risk for fraud and KYB review"
+    },
+    {
+      "id": "HR5",
+      "name": "Regulatory complaint",
+      "when": "the merchant mentions a regulator, ombudsman, legal action or a formal complaint",
+      "then": "escalate to complaints"
+    },
+    {
+      "id": "HR6",
+      "name": "Fail safe",
+      "when": "a required look-up fails after one retry",
+      "then": "send to human_review; never guess"
+    }
+  ],
+  "decisions": {
+    "resolve": "Send the merchant guidance and close the case.",
+    "request_information": "Ask the merchant for the missing detail; the case waits.",
+    "close_as_duplicate": "Link to the earlier case and close.",
+    "escalate": "Hand to a named queue: financial_crime, fraud, approvals, merchant_risk or complaints.",
+    "human_review": "Below the confidence threshold, or a look-up failed: a person decides."
+  }
+}

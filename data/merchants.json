@@ -1,0 +1,200 @@
+[
+  {
+    "id": "M001",
+    "name": "Harbour Lane Bakery",
+    "owner": "Priya Nair",
+    "country": "GB",
+    "category": "Bakery",
+    "onboarded": "2021-03-14",
+    "kyb_status": "verified",
+    "expected_daily": 120,
+    "recent_daily": 130
+  },
+  {
+    "id": "M002",
+    "name": "Northgate Cycles",
+    "owner": "Tom Ellery",
+    "country": "GB",
+    "category": "Sporting goods",
+    "onboarded": "2019-07-02",
+    "kyb_status": "verified",
+    "expected_daily": 40,
+    "recent_daily": 38
+  },
+  {
+    "id": "M003",
+    "name": "Maple & Pine Outfitters",
+    "owner": "Claire Dubois",
+    "country": "CA",
+    "category": "Outdoor clothing",
+    "onboarded": "2022-11-20",
+    "kyb_status": "verified",
+    "expected_daily": 60,
+    "recent_daily": 55
+  },
+  {
+    "id": "M004",
+    "name": "Riverside Pharmacy",
+    "owner": "Samuel Okafor",
+    "country": "GB",
+    "category": "Pharmacy",
+    "onboarded": "2018-05-09",
+    "kyb_status": "verified",
+    "expected_daily": 200,
+    "recent_daily": 210
+  },
+  {
+    "id": "M005",
+    "name": "Brightwater Electronics",
+    "owner": "Daniel Reyes",
+    "country": "GB",
+    "category": "Electronics",
+    "onboarded": "2020-01-15",
+    "kyb_status": "verified",
+    "expected_daily": 90,
+    "recent_daily": 95
+  },
+  {
+    "id": "M006",
+    "name": "Calder Fine Jewellery",
+    "owner": "Viktor Aranov",
+    "country": "GB",
+    "category": "Jewellery",
+    "onboarded": "2024-06-30",
+    "kyb_status": "verified",
+    "expected_daily": 15,
+    "recent_daily": 14
+  },
+  {
+    "id": "M007",
+    "name": "Quayside Cafe",
+    "owner": "Hannah Booth",
+    "country": "GB",
+    "category": "Cafe",
+    "onboarded": "2023-02-11",
+    "kyb_status": "verified",
+    "expected_daily": 150,
+    "recent_daily": 148
+  },
+  {
+    "id": "M008",
+    "name": "Luxe Watch Gallery",
+    "owner": "Marcus Chen",
+    "country": "GB",
+    "category": "Luxury goods",
+    "onboarded": "2017-09-01",
+    "kyb_status": "verified",
+    "expected_daily": 8,
+    "recent_daily": 9
+  },
+  {
+    "id": "M009",
+    "name": "FlashDeals Online",
+    "owner": "Ryan Kessler",
+    "country": "GB",
+    "category": "Online marketplace",
+    "onboarded": "2026-10-15",
+    "kyb_status": "pending_review",
+    "expected_daily": 50,
+    "recent_daily": 410
+  },
+  {
+    "id": "M010",
+    "name": "Greenfield Garden Centre",
+    "owner": "Margaret Hale",
+    "country": "GB",
+    "category": "Garden centre",
+    "onboarded": "2016-04-22",
+    "kyb_status": "verified",
+    "expected_daily": 70,
+    "recent_daily": 72
+  },
+  {
+    "id": "M011",
+    "name": "Atlas Travel Goods",
+    "owner": "Omar Haddad",
+    "country": "GB",
+    "category": "Luggage",
+    "onboarded": "2021-08-08",
+    "kyb_status": "verified",
+    "expected_daily": 35,
+    "recent_daily": 33
+  },
+  {
+    "id": "M012",
+    "name": "Kestrel Books",
+    "owner": "Ellen Marsh",
+    "country": "GB",
+    "category": "Bookshop",
+    "onboarded": "2022-03-03",
+    "kyb_status": "verified",
+    "expected_daily": 45,
+    "recent_daily": 47
+  },
+  {
+    "id": "M013",
+    "name": "Orion Trading Ltd",
+    "owner": "Leon Varga",
+    "country": "GB",
+    "category": "Wholesale",
+    "onboarded": "2023-12-01",
+    "kyb_status": "verified",
+    "expected_daily": 20,
+    "recent_daily": 21
+  },
+  {
+    "id": "M014",
+    "name": "Aranov Plumbing Supplies",
+    "owner": "Elena Aranov",
+    "country": "IE",
+    "category": "Building supplies",
+    "onboarded": "2020-10-10",
+    "kyb_status": "verified",
+    "expected_daily": 25,
+    "recent_daily": 26
+  },
+  {
+    "id": "M015",
+    "name": "Pop-Up Street Food",
+    "owner": "Jade Wilson",
+    "country": "GB",
+    "category": "Food stall",
+    "onboarded": "2026-10-10",
+    "kyb_status": "verified",
+    "expected_daily": 60,
+    "recent_daily": 58
+  },
+  {
+    "id": "M016",
+    "name": "Summit Sports Arena",
+    "owner": "Gareth Lloyd",
+    "country": "GB",
+    "category": "Sporting goods",
+    "onboarded": "2024-04-18",
+    "kyb_status": "verified",
+    "expected_daily": 30,
+    "recent_daily": 140
+  },
+  {
+    "id": "M017",
+    "name": "Copper Kettle Tearooms",
+    "owner": "Agnes Pryor",
+    "country": "GB",
+    "category": "Cafe",
+    "onboarded": "2019-02-27",
+    "kyb_status": "verified",
+    "expected_daily": 80,
+    "recent_daily": 79
+  },
+  {
+    "id": "M018",
+    "name": "Lumen Home Lighting",
+    "owner": "Felix Brandt",
+    "country": "IE",
+    "category": "Home furnishings",
+    "onboarded": "2022-07-19",
+    "kyb_status": "verified",
+    "expected_daily": 25,
+    "recent_daily": 24
+  }
+]
