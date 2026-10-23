@@ -1,0 +1,156 @@
+{
+  "case": "R1029",
+  "title": "EUR card, terminal set to GBP",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1029",
+    "merchant_id": "M018",
+    "transaction_reference": "T1025",
+    "merchant_message": "Irish customers can't pay since the terminal update."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M018"
+      },
+      "result": {
+        "id": "M018",
+        "name": "Lumen Home Lighting",
+        "owner": "Felix Brandt",
+        "country": "IE",
+        "category": "Home furnishings",
+        "onboarded": "2022-07-19",
+        "kyb_status": "verified",
+        "expected_daily": 25,
+        "recent_daily": 24,
+        "days_trading": 1554
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1025"
+      },
+      "result": {
+        "id": "T1025",
+        "merchant_id": "M018",
+        "card_token": "tok_b5",
+        "card_last4": "7307",
+        "amount": 275.0,
+        "currency": "EUR",
+        "terminal_currency": "GBP",
+        "decline_reason": "currency not supported by terminal configuration",
+        "at": "2026-10-20T14:15"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M018"
+      },
+      "result": {
+        "merchant_id": "M018",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good, I have the merchant and transaction details. Now let me check the card status and screen both the merchant name and owner against sanctions."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_b5"
+      },
+      "result": {
+        "card_token": "tok_b5",
+        "last4": "7307",
+        "status": "active",
+        "expiry": "2027-10"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Lumen Home Lighting"
+      },
+      "result": {
+        "query": "Lumen Home Lighting",
+        "score": 0.59,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Felix Brandt"
+      },
+      "result": {
+        "query": "Felix Brandt",
+        "score": 0.41,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "note",
+      "text": "All checks are complete. Here's a summary of my findings:\n\n- **Sanctions**: Both \"Lumen Home Lighting\" (0.59) and \"Felix Brandt\" (0.41) are well below the 0.85 threshold — no concern.\n- **Card status**: Active — no fraud issue.\n- **Amount**: €275 ≈ £236.50 — well under the £5,000 threshold.\n- **Merchant risk**: 1,554 days trading, recent volume (24) is in line with expected (25) — no concern.\n- **Duplicate**: No earlier referrals on file.\n- **Decline reason**: *\"currency not supported by terminal configuration\"* — the terminal is set to GBP but the card transacted in EUR. This matches the merchant's report that Irish (EUR) customers can't pay after a terminal update.\n\nThis is a clear terminal misconfiguration. I'll resolve with guidance."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "Thank you for raising this, Lumen Home Lighting. The declined payment was caused by your terminal currently being configured to accept GBP only, which means EUR transactions from your Irish customers are being refused. Please ask your terminal provider to re-enable EUR in the terminal's currency settings, and the issue should be resolved straight away.",
+        "reason": "Decline reason is \"currency not supported by terminal configuration\". The terminal currency is GBP while the transaction currency is EUR. The merchant's own message confirms the issue started after a terminal update. No sanctions, fraud, high-value, merchant-risk, or duplicate concerns. Straightforward terminal misconfiguration requiring the merchant to update their terminal settings to accept EUR.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "Thank you for raising this, Lumen Home Lighting. The declined payment was caused by your terminal currently being configured to accept GBP only, which means EUR transactions from your Irish customers are being refused. Please ask your terminal provider to re-enable EUR in the terminal's currency settings, and the issue should be resolved straight away.",
+    "reason": "Decline reason is \"currency not supported by terminal configuration\". The terminal currency is GBP while the transaction currency is EUR. The merchant's own message confirms the issue started after a terminal update. No sanctions, fraud, high-value, merchant-risk, or duplicate concerns. Straightforward terminal misconfiguration requiring the merchant to update their terminal settings to accept EUR.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you for raising this, Lumen Home Lighting. The declined payment was caused by your terminal currently being configured to accept GBP only, which means EUR transactions from your Irish customers are being refused. Please ask your terminal provider to re-enable EUR in the terminal's currency settings, and the issue should be resolved straight away.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.59,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 236.5
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "guidance": "terminal is configured for GBP; reset it to EUR"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 8112,
+    "output_tokens": 1341
+  },
+  "seconds": 24.2
+}

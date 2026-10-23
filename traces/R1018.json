@@ -1,0 +1,155 @@
+{
+  "case": "R1018",
+  "title": "Polite security-code case",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1018",
+    "merchant_id": "M012",
+    "transaction_reference": "T1017",
+    "merchant_message": "Sorry to bother you, a card was declined at our counter."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and the merchant's referral history in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M012"
+      },
+      "result": {
+        "id": "M012",
+        "name": "Kestrel Books",
+        "owner": "Ellen Marsh",
+        "country": "GB",
+        "category": "Bookshop",
+        "onboarded": "2022-03-03",
+        "kyb_status": "verified",
+        "expected_daily": 45,
+        "recent_daily": 47,
+        "days_trading": 1692
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1017"
+      },
+      "result": {
+        "id": "T1017",
+        "merchant_id": "M012",
+        "card_token": "tok_b5",
+        "card_last4": "7307",
+        "amount": 22.5,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "security code mismatch",
+        "at": "2026-10-20T16:44"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M012"
+      },
+      "result": {
+        "merchant_id": "M012",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now I'll check the card status and screen both the merchant name and owner against the sanctions list."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_b5"
+      },
+      "result": {
+        "card_token": "tok_b5",
+        "last4": "7307",
+        "status": "active",
+        "expiry": "2027-10"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Kestrel Books"
+      },
+      "result": {
+        "query": "Kestrel Books",
+        "score": 0.37,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Ellen Marsh"
+      },
+      "result": {
+        "query": "Ellen Marsh",
+        "score": 0.3,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "note",
+      "text": "All checks are complete. Here's a summary of my findings:\n\n- **Merchant**: Kestrel Books (verified, trading 1,692 days, normal volume) — no risk flags.\n- **Sanctions**: Both \"Kestrel Books\" (0.37) and \"Ellen Marsh\" (0.30) are well below the 0.85 threshold.\n- **Card**: Active, not lost or stolen.\n- **Amount**: £22.50 — well under the £5,000 threshold.\n- **Decline reason**: Security code mismatch — clear and specific.\n- **Referral history**: No earlier referrals, so no duplicate.\n\nThe decline reason is clear: the security code (CVV) entered didn't match the issuer's records. I'll resolve with guidance."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "Thank you for getting in touch. The payment was declined because the security code (CVV) entered did not match the card issuer's records. Please ask the customer to re-check the three-digit code on the back of their card and try the transaction again. If the issue persists, the customer may wish to contact their card issuer for further assistance.",
+        "reason": "The transaction was declined due to a security code mismatch. The card is active, sanctions screening is clear for both the merchant and owner, the amount is under the escalation threshold, and the merchant has no risk flags. Straightforward decline with a clear cause.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "Thank you for getting in touch. The payment was declined because the security code (CVV) entered did not match the card issuer's records. Please ask the customer to re-check the three-digit code on the back of their card and try the transaction again. If the issue persists, the customer may wish to contact their card issuer for further assistance.",
+    "reason": "The transaction was declined due to a security code mismatch. The card is active, sanctions screening is clear for both the merchant and owner, the amount is under the escalation threshold, and the merchant has no risk flags. Straightforward decline with a clear cause.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you for getting in touch. The payment was declined because the security code (CVV) entered did not match the card issuer's records. Please ask the customer to re-check the three-digit code on the back of their card and try the transaction again. If the issue persists, the customer may wish to contact their card issuer for further assistance.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.37,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 22.5
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7917,
+    "output_tokens": 1081
+  },
+  "seconds": 19.6
+}

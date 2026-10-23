@@ -1,0 +1,135 @@
+{
+  "case": "R1028",
+  "title": "Merchant look-up times out",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1028",
+    "merchant_id": "M007",
+    "transaction_reference": "T1027",
+    "merchant_message": "Expired card at the counter, I think."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and the merchant's referral history in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M007"
+      },
+      "error": "get_merchant timed out"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1027"
+      },
+      "result": {
+        "id": "T1027",
+        "merchant_id": "M007",
+        "card_token": "tok_a4",
+        "card_last4": "1206",
+        "amount": 12.3,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "card expired",
+        "at": "2026-10-20T08:47"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M007"
+      },
+      "result": {
+        "merchant_id": "M007",
+        "referrals": [
+          {
+            "case": "R0912",
+            "merchant": "M007",
+            "transaction": "T1005",
+            "opened": "2026-10-19",
+            "outcome": "resolve",
+            "note": "Insufficient funds: told the merchant to ask for another payment method."
+          }
+        ]
+      }
+    },
+    {
+      "type": "note",
+      "text": "The merchant look-up timed out. Let me retry it, and also check the card status in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M007"
+      },
+      "error": "get_merchant timed out"
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a4"
+      },
+      "result": {
+        "card_token": "tok_a4",
+        "last4": "1206",
+        "status": "active",
+        "expiry": "2029-01"
+      }
+    },
+    {
+      "type": "note",
+      "text": "The merchant look-up has failed twice, so I cannot screen the merchant or its owner against the sanctions list or check trading-day/volume thresholds. Per policy, I must hand this to a human reviewer.\n\nKey findings so far:\n- **Transaction T1027**: £12.30 GBP, decline reason \"card expired\".\n- **Card status**: Active, expiry 2029-01 — the card is **not** actually expired.\n- **Referral history**: No earlier referral for T1027 (not a duplicate).\n- **Merchant look-up**: Failed twice — sanctions screening and merchant-risk checks cannot be completed."
+    },
+    {
+      "type": "action",
+      "tool": "send_to_human_review",
+      "input": {
+        "reason": "The merchant look-up for M007 failed twice, so sanctions screening of the merchant name and owner could not be performed, and trading-day/volume checks are incomplete. The transaction (T1027, £12.30) was declined with reason \"card expired\" but the card (tok_a4) is active with expiry 2029-01, suggesting a possible issuer-side or terminal configuration issue. A human reviewer is needed to complete the merchant checks and investigate the mismatch.",
+        "confidence": 0.85
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "human_review",
+    "queue": null,
+    "reason": "The merchant look-up for M007 failed twice, so sanctions screening of the merchant name and owner could not be performed, and trading-day/volume checks are incomplete. The transaction (T1027, £12.30) was declined with reason \"card expired\" but the card (tok_a4) is active with expiry 2029-01, suggesting a possible issuer-side or terminal configuration issue. A human reviewer is needed to complete the merchant checks and investigate the mismatch.",
+    "confidence": 0.85
+  },
+  "outcome": {
+    "decision": "human_review",
+    "queue": null,
+    "rule": "HR6",
+    "overridden": false,
+    "message_to_merchant": "Thank you. A colleague is looking into this and will update you shortly.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [
+        "get_merchant"
+      ],
+      "injection": false,
+      "complaint": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 12.3
+    }
+  },
+  "expected": {
+    "decision": "human_review",
+    "queue": null,
+    "rule": "HR6"
+  },
+  "tool_calls": 6,
+  "usage": {
+    "input_tokens": 7803,
+    "output_tokens": 959
+  },
+  "seconds": 20.5
+}

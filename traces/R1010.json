@@ -1,0 +1,156 @@
+{
+  "case": "R1010",
+  "title": "Simple decline, but high value",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1010",
+    "merchant_id": "M008",
+    "transaction_reference": "T1009",
+    "merchant_message": "Customer tried to buy a £7,800 watch, declined for insufficient funds. Can we split it?"
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M008"
+      },
+      "result": {
+        "id": "M008",
+        "name": "Luxe Watch Gallery",
+        "owner": "Marcus Chen",
+        "country": "GB",
+        "category": "Luxury goods",
+        "onboarded": "2017-09-01",
+        "kyb_status": "verified",
+        "expected_daily": 8,
+        "recent_daily": 9,
+        "days_trading": 3336
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1009"
+      },
+      "result": {
+        "id": "T1009",
+        "merchant_id": "M008",
+        "card_token": "tok_a9",
+        "card_last4": "2284",
+        "amount": 7800.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T16:10"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M008"
+      },
+      "result": {
+        "merchant_id": "M008",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good. Now let me check the card status and screen both the merchant name and the owner's name against the sanctions list."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a9"
+      },
+      "result": {
+        "card_token": "tok_a9",
+        "last4": "2284",
+        "status": "active",
+        "expiry": "2028-12"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Luxe Watch Gallery"
+      },
+      "result": {
+        "query": "Luxe Watch Gallery",
+        "score": 0.3,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Marcus Chen"
+      },
+      "result": {
+        "query": "Marcus Chen",
+        "score": 0.32,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Here's what my investigation found:\n\n- **Merchant**: Luxe Watch Gallery (owner: Marcus Chen) — verified, trading 3,336 days, no volume anomalies.\n- **Transaction T1009**: £7,800 GBP, declined for \"insufficient funds\". Card is active.\n- **Sanctions**: Both the merchant and owner scored well below 0.85 — no concern.\n- **Card**: Active, not lost/stolen.\n- **Earlier referrals**: None (not a duplicate).\n\n**Key rule trigger**: The transaction amount is £7,800, which exceeds the £5,000 GBP threshold. Per policy, this must be escalated to the **approvals** queue regardless of the decline reason."
+    },
+    {
+      "type": "action",
+      "tool": "escalate",
+      "input": {
+        "queue": "approvals",
+        "reason": "Transaction T1009 is £7,800 GBP, exceeding the £5,000 threshold. The decline reason is \"insufficient funds\" and the merchant has asked about splitting the payment. Escalating to approvals per policy for high-value transactions.",
+        "message_to_merchant": "Thank you for getting in touch. Because this transaction exceeds our high-value payment threshold, we have passed your case to our approvals team for further review. They will be in contact with you shortly to discuss the available options, including your query about splitting the payment.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "escalate",
+    "queue": "approvals",
+    "reason": "Transaction T1009 is £7,800 GBP, exceeding the £5,000 threshold. The decline reason is \"insufficient funds\" and the merchant has asked about splitting the payment. Escalating to approvals per policy for high-value transactions.",
+    "message_to_merchant": "Thank you for getting in touch. Because this transaction exceeds our high-value payment threshold, we have passed your case to our approvals team for further review. They will be in contact with you shortly to discuss the available options, including your query about splitting the payment.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "escalate",
+    "queue": "approvals",
+    "rule": "HR3",
+    "overridden": false,
+    "message_to_merchant": "This payment needs a colleague's approval because of its value. We'll update you shortly.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.32,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 7800.0
+    }
+  },
+  "expected": {
+    "decision": "escalate",
+    "queue": "approvals",
+    "rule": "HR3"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7900,
+    "output_tokens": 1078
+  },
+  "seconds": 22.1
+}

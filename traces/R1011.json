@@ -1,0 +1,156 @@
+{
+  "case": "R1011",
+  "title": "Five-day-old merchant with a sudden spike",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1011",
+    "merchant_id": "M009",
+    "transaction_reference": "T1010",
+    "merchant_message": "Lots of declines today. We're getting huge traffic, please lift whatever limit is blocking us."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by gathering all the relevant information in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M009"
+      },
+      "result": {
+        "id": "M009",
+        "name": "FlashDeals Online",
+        "owner": "Ryan Kessler",
+        "country": "GB",
+        "category": "Online marketplace",
+        "onboarded": "2026-10-15",
+        "kyb_status": "pending_review",
+        "expected_daily": 50,
+        "recent_daily": 410,
+        "days_trading": 5
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1010"
+      },
+      "result": {
+        "id": "T1010",
+        "merchant_id": "M009",
+        "card_token": "tok_a2",
+        "card_last4": "0932",
+        "amount": 129.99,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T17:55"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M009"
+      },
+      "result": {
+        "merchant_id": "M009",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status and run sanctions screening on both the merchant and its owner."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a2"
+      },
+      "result": {
+        "card_token": "tok_a2",
+        "last4": "0932",
+        "status": "active",
+        "expiry": "2028-04"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "FlashDeals Online"
+      },
+      "result": {
+        "query": "FlashDeals Online",
+        "score": 0.31,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Ryan Kessler"
+      },
+      "result": {
+        "query": "Ryan Kessler",
+        "score": 0.38,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Here's my analysis of the findings:\n\n- **Sanctions**: Both the merchant (\"FlashDeals Online\", score 0.31) and owner (\"Ryan Kessler\", score 0.38) are well below the 0.85 threshold — no concern.\n- **Card status**: Active — no fraud trigger.\n- **Amount**: £129.99 — below the £5,000 approvals threshold.\n- **Decline reason**: \"insufficient funds\" — a cardholder-side issue, not a merchant block.\n- **Duplicate check**: No earlier referrals for this merchant.\n- **Merchant risk trigger**: The merchant has been trading for only **5 days**, with an expected daily volume of **50** but a recent daily volume of **410** — that's **8.2× expected**, well above the 3× threshold. This requires escalation to **merchant_risk**."
+    },
+    {
+      "type": "action",
+      "tool": "escalate",
+      "input": {
+        "queue": "merchant_risk",
+        "reason": "Merchant M009 (FlashDeals Online) has been trading for only 5 days with recent daily volume of 410 versus an expected daily volume of 50 (8.2x expected), exceeding the 3x threshold for new merchants. KYB status is also still pending_review.",
+        "message_to_merchant": "Thank you for getting in touch. Your account is currently under review by our specialist team, so some transactions may be affected while this is completed. A member of our team will be in contact with you shortly with further details.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "escalate",
+    "queue": "merchant_risk",
+    "reason": "Merchant M009 (FlashDeals Online) has been trading for only 5 days with recent daily volume of 410 versus an expected daily volume of 50 (8.2x expected), exceeding the 3x threshold for new merchants. KYB status is also still pending_review.",
+    "message_to_merchant": "Thank you for getting in touch. Your account is currently under review by our specialist team, so some transactions may be affected while this is completed. A member of our team will be in contact with you shortly with further details.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "escalate",
+    "queue": "merchant_risk",
+    "rule": "HR4",
+    "overridden": false,
+    "message_to_merchant": "Your account is being reviewed by our merchant team. We'll be in touch shortly.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.38,
+      "new_with_spike": true,
+      "lost_or_stolen": false,
+      "amount_gbp": 129.99
+    }
+  },
+  "expected": {
+    "decision": "escalate",
+    "queue": "merchant_risk",
+    "rule": "HR4"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7888,
+    "output_tokens": 1080
+  },
+  "seconds": 20.3
+}

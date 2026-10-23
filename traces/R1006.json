@@ -1,0 +1,123 @@
+{
+  "case": "R1006",
+  "title": "No transaction reference",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1006",
+    "merchant_id": "M012",
+    "transaction_reference": null,
+    "merchant_message": "One of our customers had a payment declined this afternoon. Please look into it."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "Let me start by looking up the merchant and performing the required background checks."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M012"
+      },
+      "result": {
+        "id": "M012",
+        "name": "Kestrel Books",
+        "owner": "Ellen Marsh",
+        "country": "GB",
+        "category": "Bookshop",
+        "onboarded": "2022-03-03",
+        "kyb_status": "verified",
+        "expected_daily": 45,
+        "recent_daily": 47,
+        "days_trading": 1692
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M012"
+      },
+      "result": {
+        "merchant_id": "M012",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good, I have the merchant details. Now let me screen the merchant and owner names against the sanctions list."
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Kestrel Books"
+      },
+      "result": {
+        "query": "Kestrel Books",
+        "score": 0.37,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Ellen Marsh"
+      },
+      "result": {
+        "query": "Ellen Marsh",
+        "score": 0.3,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "note",
+      "text": "The background checks are clear:\n- **Sanctions**: Both \"Kestrel Books\" (0.37) and \"Ellen Marsh\" (0.30) are well below the 0.85 threshold.\n- **Merchant risk**: Trading for 1,692 days with normal volume — no concerns.\n- **Referral history**: No previous referrals, so no duplicate.\n\nHowever, the referral contains **no transaction reference**, which I need to investigate the decline. I'll ask the merchant to provide it."
+    },
+    {
+      "type": "action",
+      "tool": "request_information",
+      "input": {
+        "missing": "Transaction reference for the declined payment",
+        "message_to_merchant": "Thank you for getting in touch. To investigate the declined payment, we will need the transaction reference number. Could you please provide this so we can look into it for you?",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "request_information",
+    "queue": null,
+    "missing": "Transaction reference for the declined payment",
+    "message_to_merchant": "Thank you for getting in touch. To investigate the declined payment, we will need the transaction reference number. Could you please provide this so we can look into it for you?",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "request_information",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you for getting in touch. To investigate the declined payment, we will need the transaction reference number. Could you please provide this so we can look into it for you?",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.37,
+      "new_with_spike": false
+    }
+  },
+  "expected": {
+    "decision": "request_information",
+    "queue": null,
+    "rule": null,
+    "ask": "transaction reference or time and amount"
+  },
+  "tool_calls": 5,
+  "usage": {
+    "input_tokens": 7555,
+    "output_tokens": 706
+  },
+  "seconds": 17.5
+}

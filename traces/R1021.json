@@ -1,0 +1,156 @@
+{
+  "case": "R1021",
+  "title": "Shares a surname only (false positive)",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1021",
+    "merchant_id": "M014",
+    "transaction_reference": "T1020",
+    "merchant_message": "€310 order declined for insufficient funds."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and the merchant's referral history in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M014"
+      },
+      "result": {
+        "id": "M014",
+        "name": "Aranov Plumbing Supplies",
+        "owner": "Elena Aranov",
+        "country": "IE",
+        "category": "Building supplies",
+        "onboarded": "2020-10-10",
+        "kyb_status": "verified",
+        "expected_daily": 25,
+        "recent_daily": 26,
+        "days_trading": 2201
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1020"
+      },
+      "result": {
+        "id": "T1020",
+        "merchant_id": "M014",
+        "card_token": "tok_a7",
+        "card_last4": "6620",
+        "amount": 310.0,
+        "currency": "EUR",
+        "terminal_currency": "EUR",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T10:26"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M014"
+      },
+      "result": {
+        "merchant_id": "M014",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good, I have the merchant and transaction details. No previous referrals. Now let me screen the merchant name and owner against sanctions, and check the card status."
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Aranov Plumbing Supplies"
+      },
+      "result": {
+        "query": "Aranov Plumbing Supplies",
+        "score": 0.39,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Elena Aranov"
+      },
+      "result": {
+        "query": "Elena Aranov",
+        "score": 0.54,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a7"
+      },
+      "result": {
+        "card_token": "tok_a7",
+        "last4": "6620",
+        "status": "active",
+        "expiry": "2027-03"
+      }
+    },
+    {
+      "type": "note",
+      "text": "All checks are complete. Here's my assessment:\n\n- **Sanctions**: Both the merchant (0.39) and owner (0.54) are well below the 0.85 threshold. ✅\n- **Card status**: Active, not lost or stolen. ✅\n- **Amount**: €310 = ~£266.60, well under the £5,000 threshold. ✅\n- **Merchant risk**: Trading 2,201 days, volume is normal. ✅\n- **Duplicate**: No prior referrals for this merchant. ✅\n- **Decline reason**: \"Insufficient funds\" — a clear, specific issuer reason.\n\nThe decline is straightforward. I'll resolve with guidance."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "The payment of €310 was declined because the cardholder's issuing bank reported insufficient funds in the account. Please ask your customer to check their balance or use an alternative payment method, then retry the transaction.",
+        "reason": "The transaction was declined with a clear \"insufficient funds\" reason from the issuer. All other checks (sanctions, card status, amount threshold, merchant risk, duplicate referrals) are clean. No escalation triggers apply.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "The payment of €310 was declined because the cardholder's issuing bank reported insufficient funds in the account. Please ask your customer to check their balance or use an alternative payment method, then retry the transaction.",
+    "reason": "The transaction was declined with a clear \"insufficient funds\" reason from the issuer. All other checks (sanctions, card status, amount threshold, merchant risk, duplicate referrals) are clean. No escalation triggers apply.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "The payment of €310 was declined because the cardholder's issuing bank reported insufficient funds in the account. Please ask your customer to check their balance or use an alternative payment method, then retry the transaction.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.54,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 266.6
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "note": "Owner Elena Aranov is not the listed person: the screening score stays below 0.85."
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7871,
+    "output_tokens": 963
+  },
+  "seconds": 18.8
+}

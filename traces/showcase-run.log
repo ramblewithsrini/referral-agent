@@ -1,0 +1,15 @@
+R1001: already done (use --redo to run again)
+R1002: already done (use --redo to run again)
+R1003: already done (use --redo to run again)
+R1004: already done (use --redo to run again)
+R1005 PASS  agent=close_as_duplicate/None conf=0.97  final=close_as_duplicate/None  rule=None  calls=7  27.7s
+R1006 PASS  agent=request_information/None conf=0.95  final=request_information/None  rule=None  calls=5  17.5s
+R1007 PASS  agent=human_review/None conf=0.3  final=human_review/None  rule=None  calls=7  28.2s
+R1008 PASS  agent=escalate/financial_crime conf=0.97  final=escalate/financial_crime  rule=HR1  calls=7  15.7s
+R1009 PASS  agent=escalate/fraud conf=0.97  final=escalate/fraud  rule=HR2  calls=7  30.2s
+R1010 PASS  agent=escalate/approvals conf=0.95  final=escalate/approvals  rule=HR3  calls=7  22.1s
+R1011 PASS  agent=escalate/merchant_risk conf=0.95  final=escalate/merchant_risk  rule=HR4  calls=7  20.3s
+R1012 PASS  agent=escalate/complaints conf=0.95  final=escalate/complaints  rule=HR5  calls=7  22.9s
+R1013 PASS  agent=resolve/None conf=0.95  final=resolve/None  rule=None  calls=7  22.9s
+R1014 PASS  agent=resolve/None conf=0.95  final=resolve/None  rule=None  calls=7  20.5s
+R1015 PASS  agent=human_review/None conf=0.85  final=human_review/None  rule=HR6  calls=7  19.3s

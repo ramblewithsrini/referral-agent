@@ -1,0 +1,156 @@
+{
+  "case": "R1012",
+  "title": "Threat to go to the regulator",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1012",
+    "merchant_id": "M011",
+    "transaction_reference": "T1011",
+    "merchant_message": "Third decline this week with no explanation. If this isn't fixed today I'm filing a formal complaint with the regulator."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll begin by gathering all the relevant information in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M011"
+      },
+      "result": {
+        "id": "M011",
+        "name": "Atlas Travel Goods",
+        "owner": "Omar Haddad",
+        "country": "GB",
+        "category": "Luggage",
+        "onboarded": "2021-08-08",
+        "kyb_status": "verified",
+        "expected_daily": 35,
+        "recent_daily": 33,
+        "days_trading": 1899
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1011"
+      },
+      "result": {
+        "id": "T1011",
+        "merchant_id": "M011",
+        "card_token": "tok_a3",
+        "card_last4": "7781",
+        "amount": 95.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "do not honour",
+        "at": "2026-10-20T10:48"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M011"
+      },
+      "result": {
+        "merchant_id": "M011",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now let me check the card status and screen both the merchant name and owner against sanctions."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a3"
+      },
+      "result": {
+        "card_token": "tok_a3",
+        "last4": "7781",
+        "status": "active",
+        "expiry": "2027-11"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Atlas Travel Goods"
+      },
+      "result": {
+        "query": "Atlas Travel Goods",
+        "score": 0.34,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Omar Haddad"
+      },
+      "result": {
+        "query": "Omar Haddad",
+        "score": 0.43,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Here's my assessment:\n\n- **Sanctions**: Both \"Atlas Travel Goods\" (0.34) and \"Omar Haddad\" (0.43) are well below the 0.85 threshold — no concern.\n- **Card status**: Active — not lost or stolen.\n- **Amount**: £95 GBP — well under the £5,000 threshold.\n- **Merchant risk**: 1,899 days trading with volume in line with expectations — no concern.\n- **Duplicates**: No earlier referrals for this merchant.\n- **Complaint trigger**: The merchant explicitly mentions filing a **formal complaint with the regulator**. Per policy, this must be escalated to the complaints queue.\n\nThe decline reason is a generic \"do not honour\" from the issuer, but the merchant's mention of a formal complaint and regulator takes priority."
+    },
+    {
+      "type": "action",
+      "tool": "escalate",
+      "input": {
+        "queue": "complaints",
+        "reason": "Merchant explicitly states they intend to file a formal complaint with the regulator. The underlying decline reason is a generic \"do not honour\" from the issuer for a £95 GBP transaction. No sanctions, fraud, or merchant-risk concerns identified. Escalating per complaints-handling policy.",
+        "message_to_merchant": "Thank you for contacting us regarding the declined transaction. We understand your frustration and have escalated your case to our specialist complaints team, who will be in touch with you shortly. We appreciate your patience while we work to resolve this for you.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "escalate",
+    "queue": "complaints",
+    "reason": "Merchant explicitly states they intend to file a formal complaint with the regulator. The underlying decline reason is a generic \"do not honour\" from the issuer for a £95 GBP transaction. No sanctions, fraud, or merchant-risk concerns identified. Escalating per complaints-handling policy.",
+    "message_to_merchant": "Thank you for contacting us regarding the declined transaction. We understand your frustration and have escalated your case to our specialist complaints team, who will be in touch with you shortly. We appreciate your patience while we work to resolve this for you.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "escalate",
+    "queue": "complaints",
+    "rule": "HR5",
+    "overridden": false,
+    "message_to_merchant": "We're sorry for the trouble. Your concern has been passed to our complaints team, who will contact you.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": true,
+      "sanctions_score": 0.43,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 95.0
+    }
+  },
+  "expected": {
+    "decision": "escalate",
+    "queue": "complaints",
+    "rule": "HR5"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 8129,
+    "output_tokens": 1215
+  },
+  "seconds": 22.9
+}

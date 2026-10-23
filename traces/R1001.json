@@ -1,0 +1,165 @@
+{
+  "case": "R1001",
+  "title": "Expired card",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1001",
+    "merchant_id": "M001",
+    "transaction_reference": "T1001",
+    "merchant_message": "Customer's card keeps getting declined at the till. Can you tell us why?"
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M001"
+      },
+      "result": {
+        "id": "M001",
+        "name": "Harbour Lane Bakery",
+        "owner": "Priya Nair",
+        "country": "GB",
+        "category": "Bakery",
+        "onboarded": "2021-03-14",
+        "kyb_status": "verified",
+        "expected_daily": 120,
+        "recent_daily": 130,
+        "days_trading": 2046
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1001"
+      },
+      "result": {
+        "id": "T1001",
+        "merchant_id": "M001",
+        "card_token": "tok_a1",
+        "card_last4": "4417",
+        "amount": 18.4,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "card expired",
+        "at": "2026-10-20T08:12"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M001"
+      },
+      "result": {
+        "merchant_id": "M001",
+        "referrals": [
+          {
+            "case": "R0877",
+            "merchant": "M001",
+            "transaction": "T0870",
+            "opened": "2026-09-10",
+            "outcome": "resolve",
+            "note": "Card expired: asked for another card."
+          }
+        ]
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good, I have the merchant and transaction details. Now let me check the card status and screen both the merchant name and owner against the sanctions list."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a1"
+      },
+      "result": {
+        "card_token": "tok_a1",
+        "last4": "4417",
+        "status": "expired",
+        "expiry": "2026-09"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Harbour Lane Bakery"
+      },
+      "result": {
+        "query": "Harbour Lane Bakery",
+        "score": 0.3,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Priya Nair"
+      },
+      "result": {
+        "query": "Priya Nair",
+        "score": 0.33,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "note",
+      "text": "All checks are complete. Here's a summary of my findings:\n\n- **Sanctions screening**: Both \"Harbour Lane Bakery\" (0.30) and \"Priya Nair\" (0.33) are well below the 0.85 threshold — no concern.\n- **Card status**: Expired (expiry September 2026). The transaction was attempted on 20 October 2026.\n- **Decline reason**: \"card expired\" — clear and specific.\n- **Amount**: £18.40 — well under the £5,000 escalation threshold.\n- **Merchant risk**: Trading 2,046 days; recent daily volume (£130) is in line with expected (£120) — no concern.\n- **Duplicate check**: Previous referral R0877 was for a different transaction (T0870) — not a duplicate.\n- **No complaint language** in the merchant's message.\n\nEverything is straightforward. The card has expired, and the customer needs to use a different or renewed card. I'll resolve with guidance."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "The payment was declined because the customer's card has expired. Please ask the customer to use a different card or contact their bank for a replacement. No action is needed on your side.",
+        "reason": "Transaction T1001 was declined with reason \"card expired\". The card (token tok_a1) is confirmed expired (expiry 2026-09). Amount is £18.40, well under thresholds. Sanctions scores are low. No duplicate case. Straightforward expired-card decline.",
+        "confidence": 0.97
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "The payment was declined because the customer's card has expired. Please ask the customer to use a different card or contact their bank for a replacement. No action is needed on your side.",
+    "reason": "Transaction T1001 was declined with reason \"card expired\". The card (token tok_a1) is confirmed expired (expiry 2026-09). Amount is £18.40, well under thresholds. Sanctions scores are low. No duplicate case. Straightforward expired-card decline.",
+    "confidence": 0.97
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "The payment was declined because the customer's card has expired. Please ask the customer to use a different card or contact their bank for a replacement. No action is needed on your side.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.33,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 18.4
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "guidance": "card has expired; ask for another card"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 8193,
+    "output_tokens": 1247
+  },
+  "seconds": 24.1
+}

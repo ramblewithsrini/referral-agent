@@ -1,0 +1,156 @@
+{
+  "case": "R1004",
+  "title": "Terminal set to the wrong currency",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1004",
+    "merchant_id": "M003",
+    "transaction_reference": "T1004",
+    "merchant_message": "Canadian customers' cards are failing since we moved the terminal from our pop-up shop."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M003"
+      },
+      "result": {
+        "id": "M003",
+        "name": "Maple & Pine Outfitters",
+        "owner": "Claire Dubois",
+        "country": "CA",
+        "category": "Outdoor clothing",
+        "onboarded": "2022-11-20",
+        "kyb_status": "verified",
+        "expected_daily": 60,
+        "recent_daily": 55,
+        "days_trading": 1430
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1004"
+      },
+      "result": {
+        "id": "T1004",
+        "merchant_id": "M003",
+        "card_token": "tok_a4",
+        "card_last4": "1206",
+        "amount": 212.0,
+        "currency": "CAD",
+        "terminal_currency": "GBP",
+        "decline_reason": "currency not supported by terminal configuration",
+        "at": "2026-10-20T15:22"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M003"
+      },
+      "result": {
+        "merchant_id": "M003",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good, I have the merchant and transaction details. Now let me check the card status and run sanctions screening on both the merchant name and its owner."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a4"
+      },
+      "result": {
+        "card_token": "tok_a4",
+        "last4": "1206",
+        "status": "active",
+        "expiry": "2029-01"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Maple & Pine Outfitters"
+      },
+      "result": {
+        "query": "Maple & Pine Outfitters",
+        "score": 0.32,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Claire Dubois"
+      },
+      "result": {
+        "query": "Claire Dubois",
+        "score": 0.4,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "note",
+      "text": "All checks are complete. Here's my summary:\n\n| Check | Result |\n|---|---|\n| **Merchant** | Maple & Pine Outfitters, owner Claire Dubois, verified, trading 1,430 days |\n| **Sanctions (merchant)** | Score 0.32 — clear |\n| **Sanctions (owner)** | Score 0.40 — clear |\n| **Card status** | Active |\n| **Amount** | 212 CAD ≈ £114.48 — under £5,000 |\n| **Merchant risk** | Recent volume (55) well within expected (60); trading > 30 days |\n| **Duplicate** | No earlier referrals |\n| **Decline reason** | \"currency not supported by terminal configuration\" |\n\nThe decline reason is specific and matches the merchant's own description: after moving the terminal from their pop-up shop, it appears the terminal is now configured for GBP rather than CAD. Canadian-issued cards presenting in CAD are being rejected because the terminal doesn't accept that currency. The fix is a terminal configuration update."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "Thank you for getting in touch. The transaction was declined because the terminal's currency configuration does not currently support the currency on the cards being presented (CAD). This is likely a result of the terminal settings changing when you moved it from your pop-up shop. Please contact your terminal provider to ensure CAD is enabled in the terminal's currency configuration, and transactions should then process as expected.",
+        "reason": "Decline reason is 'currency not supported by terminal configuration'. The merchant relocated their terminal and it is now set to GBP, rejecting CAD-denominated cards. No sanctions, fraud, high-value, merchant-risk, or duplicate concerns. Straightforward configuration issue.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "Thank you for getting in touch. The transaction was declined because the terminal's currency configuration does not currently support the currency on the cards being presented (CAD). This is likely a result of the terminal settings changing when you moved it from your pop-up shop. Please contact your terminal provider to ensure CAD is enabled in the terminal's currency configuration, and transactions should then process as expected.",
+    "reason": "Decline reason is 'currency not supported by terminal configuration'. The merchant relocated their terminal and it is now set to GBP, rejecting CAD-denominated cards. No sanctions, fraud, high-value, merchant-risk, or duplicate concerns. Straightforward configuration issue.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you for getting in touch. The transaction was declined because the terminal's currency configuration does not currently support the currency on the cards being presented (CAD). This is likely a result of the terminal settings changing when you moved it from your pop-up shop. Please contact your terminal provider to ensure CAD is enabled in the terminal's currency configuration, and transactions should then process as expected.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.4,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 114.48
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "guidance": "terminal is configured for GBP; reset it to CAD"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 8166,
+    "output_tokens": 1445
+  },
+  "seconds": 30.5
+}

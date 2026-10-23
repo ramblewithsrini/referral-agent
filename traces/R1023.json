@@ -1,0 +1,156 @@
+{
+  "case": "R1023",
+  "title": "New merchant, no spike",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1023",
+    "merchant_id": "M015",
+    "transaction_reference": "T1022",
+    "merchant_message": "First week trading, one card declined at our stall."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M015"
+      },
+      "result": {
+        "id": "M015",
+        "name": "Pop-Up Street Food",
+        "owner": "Jade Wilson",
+        "country": "GB",
+        "category": "Food stall",
+        "onboarded": "2026-10-10",
+        "kyb_status": "verified",
+        "expected_daily": 60,
+        "recent_daily": 58,
+        "days_trading": 10
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1022"
+      },
+      "result": {
+        "id": "T1022",
+        "merchant_id": "M015",
+        "card_token": "tok_a9",
+        "card_last4": "2284",
+        "amount": 8.5,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T12:40"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M015"
+      },
+      "result": {
+        "merchant_id": "M015",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good, I have the merchant and transaction details. Now let me check the card status and screen both names against the sanctions list."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a9"
+      },
+      "result": {
+        "card_token": "tok_a9",
+        "last4": "2284",
+        "status": "active",
+        "expiry": "2028-12"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Pop-Up Street Food"
+      },
+      "result": {
+        "query": "Pop-Up Street Food",
+        "score": 0.34,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Jade Wilson"
+      },
+      "result": {
+        "query": "Jade Wilson",
+        "score": 0.3,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "note",
+      "text": "All checks are complete. Here's a summary of my findings:\n\n- **Merchant**: Pop-Up Street Food (Jade Wilson), verified, 10 days trading, volume is normal (58 vs 60 expected).\n- **Transaction**: £8.50 GBP, declined for **insufficient funds**.\n- **Card**: Active, not lost/stolen.\n- **Sanctions**: Both merchant and owner well below threshold (0.34 and 0.30).\n- **Referral history**: No earlier referrals (no duplicate).\n- **No escalation triggers**: Amount under £5k, card active, sanctions clear, volume normal, no complaint language.\n\nThe decline reason is clear — the cardholder's bank reported insufficient funds. I'll resolve with guidance."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "Thank you for getting in touch. The payment of £8.50 was declined because the cardholder's bank indicated there were insufficient funds in the account. This is not an issue with your terminal or setup — the customer would need to use a different card or ensure enough funds are available before retrying.",
+        "reason": "Transaction T1022 was declined with a clear \"insufficient funds\" reason from the issuer. No escalation triggers apply: sanctions scores are low (0.34 and 0.30), card is active, amount is well under £5,000, trading volume is within expected range, and there are no prior referrals for this transaction.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "Thank you for getting in touch. The payment of £8.50 was declined because the cardholder's bank indicated there were insufficient funds in the account. This is not an issue with your terminal or setup — the customer would need to use a different card or ensure enough funds are available before retrying.",
+    "reason": "Transaction T1022 was declined with a clear \"insufficient funds\" reason from the issuer. No escalation triggers apply: sanctions scores are low (0.34 and 0.30), card is active, amount is well under £5,000, trading volume is within expected range, and there are no prior referrals for this transaction.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you for getting in touch. The payment of £8.50 was declined because the cardholder's bank indicated there were insufficient funds in the account. This is not an issue with your terminal or setup — the customer would need to use a different card or ensure enough funds are available before retrying.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.34,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 8.5
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "note": "New, but volumes are normal: HR4 needs both conditions."
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 8042,
+    "output_tokens": 1179
+  },
+  "seconds": 24.3
+}

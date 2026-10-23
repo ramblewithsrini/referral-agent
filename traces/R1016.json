@@ -1,0 +1,156 @@
+{
+  "case": "R1016",
+  "title": "Over the value limit by £200",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1016",
+    "merchant_id": "M008",
+    "transaction_reference": "T1015",
+    "merchant_message": "£5,200 sale declined for insufficient funds."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M008"
+      },
+      "result": {
+        "id": "M008",
+        "name": "Luxe Watch Gallery",
+        "owner": "Marcus Chen",
+        "country": "GB",
+        "category": "Luxury goods",
+        "onboarded": "2017-09-01",
+        "kyb_status": "verified",
+        "expected_daily": 8,
+        "recent_daily": 9,
+        "days_trading": 3336
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1015"
+      },
+      "result": {
+        "id": "T1015",
+        "merchant_id": "M008",
+        "card_token": "tok_b2",
+        "card_last4": "4102",
+        "amount": 5200.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T11:11"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M008"
+      },
+      "result": {
+        "merchant_id": "M008",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good, now let me check the card status and screen the merchant and owner names against the sanctions list."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_b2"
+      },
+      "result": {
+        "card_token": "tok_b2",
+        "last4": "4102",
+        "status": "active",
+        "expiry": "2027-09"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Luxe Watch Gallery"
+      },
+      "result": {
+        "query": "Luxe Watch Gallery",
+        "score": 0.3,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Marcus Chen"
+      },
+      "result": {
+        "query": "Marcus Chen",
+        "score": 0.32,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Here's my assessment:\n\n- **Sanctions**: Both \"Luxe Watch Gallery\" (0.30) and \"Marcus Chen\" (0.32) are well below the 0.85 threshold. ✅\n- **Card status**: Active. ✅\n- **Duplicates**: No earlier referrals. ✅\n- **Merchant risk**: Trading 3,336 days, recent volume is not anomalous. ✅\n- **Amount**: £5,200 GBP — this exceeds the £5,000 threshold, so the case must be escalated to **approvals**, regardless of the straightforward decline reason."
+    },
+    {
+      "type": "action",
+      "tool": "escalate",
+      "input": {
+        "queue": "approvals",
+        "reason": "Transaction amount is £5,200 GBP, exceeding the £5,000 threshold. The decline reason was \"insufficient funds\" and the card is active, but the amount requires approvals review per policy.",
+        "message_to_merchant": "Thank you for raising this, Luxe Watch Gallery. The declined transaction of £5,200 has been referred to our approvals team for further review, as it exceeds our standard threshold. A specialist will be in touch with you shortly.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "escalate",
+    "queue": "approvals",
+    "reason": "Transaction amount is £5,200 GBP, exceeding the £5,000 threshold. The decline reason was \"insufficient funds\" and the card is active, but the amount requires approvals review per policy.",
+    "message_to_merchant": "Thank you for raising this, Luxe Watch Gallery. The declined transaction of £5,200 has been referred to our approvals team for further review, as it exceeds our standard threshold. A specialist will be in touch with you shortly.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "escalate",
+    "queue": "approvals",
+    "rule": "HR3",
+    "overridden": false,
+    "message_to_merchant": "This payment needs a colleague's approval because of its value. We'll update you shortly.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.32,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 5200.0
+    }
+  },
+  "expected": {
+    "decision": "escalate",
+    "queue": "approvals",
+    "rule": "HR3"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7858,
+    "output_tokens": 955
+  },
+  "seconds": 18.5
+}

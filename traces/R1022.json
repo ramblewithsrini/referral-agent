@@ -1,0 +1,156 @@
+{
+  "case": "R1022",
+  "title": "Lost card, merchant wants to retry",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1022",
+    "merchant_id": "M002",
+    "transaction_reference": "T1021",
+    "merchant_message": "Declined, can we just keep retrying the card?"
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M002"
+      },
+      "result": {
+        "id": "M002",
+        "name": "Northgate Cycles",
+        "owner": "Tom Ellery",
+        "country": "GB",
+        "category": "Sporting goods",
+        "onboarded": "2019-07-02",
+        "kyb_status": "verified",
+        "expected_daily": 40,
+        "recent_daily": 38,
+        "days_trading": 2667
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1021"
+      },
+      "result": {
+        "id": "T1021",
+        "merchant_id": "M002",
+        "card_token": "tok_b3",
+        "card_last4": "6631",
+        "amount": 420.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "card reported lost or stolen",
+        "at": "2026-10-20T11:58"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M002"
+      },
+      "result": {
+        "merchant_id": "M002",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Now I'll screen both the merchant name and owner against sanctions, and check the card status."
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Northgate Cycles"
+      },
+      "result": {
+        "query": "Northgate Cycles",
+        "score": 0.3,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Tom Ellery"
+      },
+      "result": {
+        "query": "Tom Ellery",
+        "score": 0.33,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_b3"
+      },
+      "result": {
+        "card_token": "tok_b3",
+        "last4": "6631",
+        "status": "lost_or_stolen",
+        "expiry": "2029-05"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Here's my assessment:\n\n- **Sanctions**: Both \"Northgate Cycles\" (0.30) and \"Tom Ellery\" (0.33) are well below the 0.85 threshold — no concern.\n- **Card status**: The card is confirmed **lost or stolen**.\n- **Amount**: £420 — under £5,000, no approvals escalation needed.\n- **Merchant risk**: Trading 2,667 days with volume in line — no concern.\n- **Duplicates**: No earlier referrals for this merchant.\n\nThe card is flagged as lost or stolen, so per policy this must be escalated to the **fraud** queue. The merchant should definitely **not** keep retrying the card."
+    },
+    {
+      "type": "action",
+      "tool": "escalate",
+      "input": {
+        "queue": "fraud",
+        "reason": "The card (token tok_b3) used in transaction T1021 is confirmed lost or stolen. The decline reason also states \"card reported lost or stolen\". Per policy, this must be escalated to the fraud queue. The merchant has also asked about retrying the card, which should not be done.",
+        "message_to_merchant": "Thank you for getting in touch. This transaction was declined because of an issue flagged with the card used, and we would strongly advise against retrying it. We have referred your case to our specialist team, who will be in touch if anything further is needed.",
+        "confidence": 0.97
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "escalate",
+    "queue": "fraud",
+    "reason": "The card (token tok_b3) used in transaction T1021 is confirmed lost or stolen. The decline reason also states \"card reported lost or stolen\". Per policy, this must be escalated to the fraud queue. The merchant has also asked about retrying the card, which should not be done.",
+    "message_to_merchant": "Thank you for getting in touch. This transaction was declined because of an issue flagged with the card used, and we would strongly advise against retrying it. We have referred your case to our specialist team, who will be in touch if anything further is needed.",
+    "confidence": 0.97
+  },
+  "outcome": {
+    "decision": "escalate",
+    "queue": "fraud",
+    "rule": "HR2",
+    "overridden": false,
+    "message_to_merchant": "Please do not retry this card. Follow the retained-card procedure in your merchant guide; our team will contact you.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.33,
+      "new_with_spike": false,
+      "lost_or_stolen": true,
+      "amount_gbp": 420.0
+    }
+  },
+  "expected": {
+    "decision": "escalate",
+    "queue": "fraud",
+    "rule": "HR2"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 8047,
+    "output_tokens": 1140
+  },
+  "seconds": 21.2
+}

@@ -1,0 +1,153 @@
+{
+  "case": "R1030",
+  "title": "'Do not honour' on a CAD sale",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1030",
+    "merchant_id": "M003",
+    "transaction_reference": "T1028",
+    "merchant_message": "Declined, 'do not honour'. Any idea?"
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M003"
+      },
+      "result": {
+        "id": "M003",
+        "name": "Maple & Pine Outfitters",
+        "owner": "Claire Dubois",
+        "country": "CA",
+        "category": "Outdoor clothing",
+        "onboarded": "2022-11-20",
+        "kyb_status": "verified",
+        "expected_daily": 60,
+        "recent_daily": 55,
+        "days_trading": 1430
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1028"
+      },
+      "result": {
+        "id": "T1028",
+        "merchant_id": "M003",
+        "card_token": "tok_b5",
+        "card_last4": "7307",
+        "amount": 154.0,
+        "currency": "CAD",
+        "terminal_currency": "CAD",
+        "decline_reason": "do not honour",
+        "at": "2026-10-20T16:18"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M003"
+      },
+      "result": {
+        "merchant_id": "M003",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good, I have the merchant and transaction details. Now let me check the card status and screen both the merchant name and owner against sanctions."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_b5"
+      },
+      "result": {
+        "card_token": "tok_b5",
+        "last4": "7307",
+        "status": "active",
+        "expiry": "2027-10"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Maple & Pine Outfitters"
+      },
+      "result": {
+        "query": "Maple & Pine Outfitters",
+        "score": 0.32,
+        "closest_entry": "Dmitri Kalenko"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Claire Dubois"
+      },
+      "result": {
+        "query": "Claire Dubois",
+        "score": 0.4,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Here's my analysis:\n\n| Check | Result |\n|---|---|\n| **Sanctions** | Merchant: 0.32, Owner: 0.40 — both well below 0.85 |\n| **Card status** | Active, expires 2027-10 |\n| **Amount** | 154 CAD ≈ £83.16 — under £5,000 |\n| **Merchant risk** | Trading 1,430 days; volume (55) within expected range (60) |\n| **Duplicate** | No earlier referrals |\n| **Complaint trigger** | None in merchant message |\n\nNo escalation triggers are met. However, the decline reason is **\"do not honour\"** — a generic issuer response that gives no indication of the underlying cause. The card is active and not expired, and nothing on our side explains the decline. Because I can't determine the actual reason, my confidence is low and this should go to a human reviewer."
+    },
+    {
+      "type": "action",
+      "tool": "send_to_human_review",
+      "input": {
+        "reason": "The transaction was declined with a generic \"do not honour\" response from the issuer. All automated checks are clear: card is active and not expired, sanctions screening is negative, amount is low, merchant is established with normal volumes, and there are no duplicates. The root cause cannot be determined from available data and requires human investigation.",
+        "confidence": 0.3
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "human_review",
+    "queue": null,
+    "reason": "The transaction was declined with a generic \"do not honour\" response from the issuer. All automated checks are clear: card is active and not expired, sanctions screening is negative, amount is low, merchant is established with normal volumes, and there are no duplicates. The root cause cannot be determined from available data and requires human investigation.",
+    "confidence": 0.3
+  },
+  "outcome": {
+    "decision": "human_review",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you. A colleague is looking into this and will update you shortly.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.4,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 83.16
+    }
+  },
+  "expected": {
+    "decision": "human_review",
+    "queue": null,
+    "rule": null
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 8054,
+    "output_tokens": 1387
+  },
+  "seconds": 25.8
+}

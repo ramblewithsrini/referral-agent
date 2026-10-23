@@ -1,0 +1,155 @@
+{
+  "case": "R1017",
+  "title": "Just under the value limit",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1017",
+    "merchant_id": "M005",
+    "transaction_reference": "T1016",
+    "merchant_message": "£4,950 TV declined, insufficient funds apparently."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and the merchant's referral history in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M005"
+      },
+      "result": {
+        "id": "M005",
+        "name": "Brightwater Electronics",
+        "owner": "Daniel Reyes",
+        "country": "GB",
+        "category": "Electronics",
+        "onboarded": "2020-01-15",
+        "kyb_status": "verified",
+        "expected_daily": 90,
+        "recent_daily": 95,
+        "days_trading": 2470
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1016"
+      },
+      "result": {
+        "id": "T1016",
+        "merchant_id": "M005",
+        "card_token": "tok_b4",
+        "card_last4": "1950",
+        "amount": 4950.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T14:02"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M005"
+      },
+      "result": {
+        "merchant_id": "M005",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good, I have the merchant and transaction details. Now let me check the card status and screen both the merchant name and owner name against sanctions."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_b4"
+      },
+      "result": {
+        "card_token": "tok_b4",
+        "last4": "1950",
+        "status": "active",
+        "expiry": "2028-01"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Brightwater Electronics"
+      },
+      "result": {
+        "query": "Brightwater Electronics",
+        "score": 0.32,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Daniel Reyes"
+      },
+      "result": {
+        "query": "Daniel Reyes",
+        "score": 0.29,
+        "closest_entry": "Blue Meridian Holdings"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Here's my assessment of the referral:\n\n- **Sanctions screening**: Both \"Brightwater Electronics\" (0.32) and \"Daniel Reyes\" (0.29) are well below the 0.85 threshold. ✅\n- **Card status**: Active. ✅\n- **Amount**: £4,950 — below the £5,000 approvals threshold. ✅\n- **Merchant risk**: 2,470 days trading, recent daily volume (95) close to expected (90). ✅\n- **Duplicate**: No earlier referrals. ✅\n- **Decline reason**: \"Insufficient funds\" — a clear, specific reason from the issuer.\n\nThis is a straightforward insufficient-funds decline. I'll resolve with guidance."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "The transaction for £4,950 was declined by the cardholder's issuing bank because there were insufficient funds in the account. Please ask the customer to check their available balance or use an alternative payment method, then retry the transaction.",
+        "reason": "The decline reason is clearly \"insufficient funds\" from the issuer. All other checks are clean: sanctions scores are low (0.32 and 0.29), the card is active, the amount is below £5,000, the merchant is well-established (2,470 days trading) with normal volumes, and there are no prior referrals for this transaction.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "The transaction for £4,950 was declined by the cardholder's issuing bank because there were insufficient funds in the account. Please ask the customer to check their available balance or use an alternative payment method, then retry the transaction.",
+    "reason": "The decline reason is clearly \"insufficient funds\" from the issuer. All other checks are clean: sanctions scores are low (0.32 and 0.29), the card is active, the amount is below £5,000, the merchant is well-established (2,470 days trading) with normal volumes, and there are no prior referrals for this transaction.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "The transaction for £4,950 was declined by the cardholder's issuing bank because there were insufficient funds in the account. Please ask the customer to check their available balance or use an alternative payment method, then retry the transaction.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.32,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 4950.0
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7871,
+    "output_tokens": 1053
+  },
+  "seconds": 22.9
+}

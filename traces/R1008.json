@@ -1,0 +1,157 @@
+{
+  "case": "R1008",
+  "title": "Owner is a near-match on the sanctions list",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1008",
+    "merchant_id": "M006",
+    "transaction_reference": "T1007",
+    "merchant_message": "A £1,250 sale failed for insufficient funds. Please confirm we can retry."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M006"
+      },
+      "result": {
+        "id": "M006",
+        "name": "Calder Fine Jewellery",
+        "owner": "Viktor Aranov",
+        "country": "GB",
+        "category": "Jewellery",
+        "onboarded": "2024-06-30",
+        "kyb_status": "verified",
+        "expected_daily": 15,
+        "recent_daily": 14,
+        "days_trading": 842
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1007"
+      },
+      "result": {
+        "id": "T1007",
+        "merchant_id": "M006",
+        "card_token": "tok_a7",
+        "card_last4": "6620",
+        "amount": 1250.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T14:47"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M006"
+      },
+      "result": {
+        "merchant_id": "M006",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good. Now let me check the card status and screen both the merchant name and the owner's name against the sanctions list."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a7"
+      },
+      "result": {
+        "card_token": "tok_a7",
+        "last4": "6620",
+        "status": "active",
+        "expiry": "2027-03"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Calder Fine Jewellery"
+      },
+      "result": {
+        "query": "Calder Fine Jewellery",
+        "score": 0.32,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Viktor Aranov"
+      },
+      "result": {
+        "query": "Viktor Aranov",
+        "score": 0.96,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "note",
+      "text": "The sanctions screening for the merchant's owner, Viktor Aranov, returned a match score of **0.96** (well above the 0.85 threshold). Per policy, this must be escalated to the financial crime team immediately. I must not disclose the reason to the merchant."
+    },
+    {
+      "type": "action",
+      "tool": "escalate",
+      "input": {
+        "queue": "financial_crime",
+        "reason": "Sanctions screening of the merchant owner \"Viktor Aranov\" returned a 0.96 match against the entry \"Viktor Aranova\". This exceeds the 0.85 threshold and requires financial crime review.",
+        "message_to_merchant": "Thank you for getting in touch about your declined transaction. Your case has been referred to a specialist team for further review. They will be in contact with you shortly.",
+        "confidence": 0.97
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "escalate",
+    "queue": "financial_crime",
+    "reason": "Sanctions screening of the merchant owner \"Viktor Aranov\" returned a 0.96 match against the entry \"Viktor Aranova\". This exceeds the 0.85 threshold and requires financial crime review.",
+    "message_to_merchant": "Thank you for getting in touch about your declined transaction. Your case has been referred to a specialist team for further review. They will be in contact with you shortly.",
+    "confidence": 0.97
+  },
+  "outcome": {
+    "decision": "escalate",
+    "queue": "financial_crime",
+    "rule": "HR1",
+    "overridden": false,
+    "message_to_merchant": "Thank you. Your referral is under review and a member of our team will be in touch.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.96,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 1250.0
+    }
+  },
+  "expected": {
+    "decision": "escalate",
+    "queue": "financial_crime",
+    "rule": "HR1",
+    "note": "Must not tell the merchant why."
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7906,
+    "output_tokens": 790
+  },
+  "seconds": 15.7
+}

@@ -1,0 +1,156 @@
+{
+  "case": "R1002",
+  "title": "Insufficient funds",
+  "showcase": true,
+  "referral": {
+    "referral_id": "R1002",
+    "merchant_id": "M002",
+    "transaction_reference": "T1002",
+    "merchant_message": "A £640 bike sale was declined twice. The customer says the card is fine."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M002"
+      },
+      "result": {
+        "id": "M002",
+        "name": "Northgate Cycles",
+        "owner": "Tom Ellery",
+        "country": "GB",
+        "category": "Sporting goods",
+        "onboarded": "2019-07-02",
+        "kyb_status": "verified",
+        "expected_daily": 40,
+        "recent_daily": 38,
+        "days_trading": 2667
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1002"
+      },
+      "result": {
+        "id": "T1002",
+        "merchant_id": "M002",
+        "card_token": "tok_a2",
+        "card_last4": "0932",
+        "amount": 640.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "insufficient funds",
+        "at": "2026-10-20T10:05"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M002"
+      },
+      "result": {
+        "merchant_id": "M002",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good — now let me check the card status and run sanctions screening on both the merchant name and its owner."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_a2"
+      },
+      "result": {
+        "card_token": "tok_a2",
+        "last4": "0932",
+        "status": "active",
+        "expiry": "2028-04"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Northgate Cycles"
+      },
+      "result": {
+        "query": "Northgate Cycles",
+        "score": 0.3,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Tom Ellery"
+      },
+      "result": {
+        "query": "Tom Ellery",
+        "score": 0.33,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "note",
+      "text": "All checks are complete. Here's my summary:\n\n| Check | Result |\n|---|---|\n| **Merchant** | Northgate Cycles, owner Tom Ellery, trading 2,667 days, KYB verified |\n| **Sanctions** | Merchant: 0.30, Owner: 0.33 — both well below 0.85 |\n| **Transaction** | £640 GBP, declined for **insufficient funds** |\n| **Card status** | Active (expires 2028-04) |\n| **Amount threshold** | £640 < £5,000 — no approvals escalation |\n| **Merchant risk** | Recent daily volume (38) is within expected (40) — no concern |\n| **Earlier referrals** | None — not a duplicate |\n\nThe decline reason is clear and specific: **insufficient funds**. The card is active and valid, so the issue lies with the cardholder's available balance, not with the card itself. I'll resolve with guidance."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "Thank you for raising this, Northgate Cycles. The transaction was declined by the card issuer due to insufficient funds on the customer's account. We'd suggest asking your customer to check their available balance with their bank or to try an alternative payment method.",
+        "reason": "The decline reason from the issuer is \"insufficient funds.\" The card is active and not reported lost/stolen. Sanctions screening is clear for both the merchant and owner. The amount is below the £5,000 threshold. No merchant risk flags. No earlier referrals exist. This is a straightforward issuer-side decline that the cardholder needs to resolve with their bank.",
+        "confidence": 0.95
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "Thank you for raising this, Northgate Cycles. The transaction was declined by the card issuer due to insufficient funds on the customer's account. We'd suggest asking your customer to check their available balance with their bank or to try an alternative payment method.",
+    "reason": "The decline reason from the issuer is \"insufficient funds.\" The card is active and not reported lost/stolen. Sanctions screening is clear for both the merchant and owner. The amount is below the £5,000 threshold. No merchant risk flags. No earlier referrals exist. This is a straightforward issuer-side decline that the cardholder needs to resolve with their bank.",
+    "confidence": 0.95
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you for raising this, Northgate Cycles. The transaction was declined by the card issuer due to insufficient funds on the customer's account. We'd suggest asking your customer to check their available balance with their bank or to try an alternative payment method.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.33,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 640.0
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "guidance": "declined by the card issuer for insufficient funds; suggest another payment method"
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 8103,
+    "output_tokens": 1323
+  },
+  "seconds": 26.4
+}

@@ -1,0 +1,156 @@
+{
+  "case": "R1024",
+  "title": "Spike, but an established merchant",
+  "showcase": false,
+  "referral": {
+    "referral_id": "R1024",
+    "merchant_id": "M016",
+    "transaction_reference": "T1023",
+    "merchant_message": "Busy match day, one expired card declined."
+  },
+  "model": "eu.anthropic.claude-opus-4-6-v1",
+  "steps": [
+    {
+      "type": "note",
+      "text": "I'll start by looking up the merchant, the transaction, and any earlier referrals — all in parallel."
+    },
+    {
+      "type": "lookup",
+      "tool": "get_merchant",
+      "input": {
+        "merchant_id": "M016"
+      },
+      "result": {
+        "id": "M016",
+        "name": "Summit Sports Arena",
+        "owner": "Gareth Lloyd",
+        "country": "GB",
+        "category": "Sporting goods",
+        "onboarded": "2024-04-18",
+        "kyb_status": "verified",
+        "expected_daily": 30,
+        "recent_daily": 140,
+        "days_trading": 915
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_transaction",
+      "input": {
+        "transaction_id": "T1023"
+      },
+      "result": {
+        "id": "T1023",
+        "merchant_id": "M016",
+        "card_token": "tok_b2",
+        "card_last4": "4102",
+        "amount": 64.0,
+        "currency": "GBP",
+        "terminal_currency": "GBP",
+        "decline_reason": "card expired",
+        "at": "2026-10-20T18:03"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_referral_history",
+      "input": {
+        "merchant_id": "M016"
+      },
+      "result": {
+        "merchant_id": "M016",
+        "referrals": []
+      }
+    },
+    {
+      "type": "note",
+      "text": "Good — I now have the merchant and transaction details, and there are no earlier referrals. Next, I'll screen the merchant name and owner against sanctions, and check the card status."
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Summit Sports Arena"
+      },
+      "result": {
+        "query": "Summit Sports Arena",
+        "score": 0.55,
+        "closest_entry": "Viktor Aranova"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "screen_sanctions",
+      "input": {
+        "name": "Gareth Lloyd"
+      },
+      "result": {
+        "query": "Gareth Lloyd",
+        "score": 0.28,
+        "closest_entry": "Orion Trading Ltd"
+      }
+    },
+    {
+      "type": "lookup",
+      "tool": "get_card_status",
+      "input": {
+        "card_token": "tok_b2"
+      },
+      "result": {
+        "card_token": "tok_b2",
+        "last4": "4102",
+        "status": "active",
+        "expiry": "2027-09"
+      }
+    },
+    {
+      "type": "note",
+      "text": "Here's my assessment of all the checks:\n\n| Check | Result |\n|---|---|\n| **Sanctions – merchant** | Score 0.55 — well below 0.85, clear |\n| **Sanctions – owner** | Score 0.28 — well below 0.85, clear |\n| **Card status** | Active (expiry 2027-09) |\n| **Amount** | £64.00 — under £5,000 threshold |\n| **Days trading** | 915 — well over 30 |\n| **Duplicate referral** | No earlier referrals |\n| **Complaint language** | None detected |\n\nThe decline reason is clearly \"card expired,\" returned by the issuing bank. Interestingly, our records show the card token as active, which may mean the issuer has reissued a replacement card while the old details were used for this transaction. This is a straightforward issuer-side decline with a specific reason. I'll resolve with guidance."
+    },
+    {
+      "type": "action",
+      "tool": "resolve_with_guidance",
+      "input": {
+        "message_to_merchant": "Thank you for getting in touch. The payment was declined by the card issuer with the reason \"card expired.\" Please ask your customer to check whether a replacement card has been issued and to retry the payment using their updated card details. If the problem persists, the customer should contact their bank directly.",
+        "reason": "Transaction T1023 was declined with a clear \"card expired\" reason from the issuer. No sanctions concern (scores 0.55 and 0.28), card is not lost/stolen, amount £64 is well under escalation threshold, merchant has been trading 915 days, and no prior referrals exist. The merchant's message contains no complaint or regulatory language. Straightforward issuer decline — guidance provided.",
+        "confidence": 0.92
+      }
+    }
+  ],
+  "proposal": {
+    "decision": "resolve",
+    "queue": null,
+    "message_to_merchant": "Thank you for getting in touch. The payment was declined by the card issuer with the reason \"card expired.\" Please ask your customer to check whether a replacement card has been issued and to retry the payment using their updated card details. If the problem persists, the customer should contact their bank directly.",
+    "reason": "Transaction T1023 was declined with a clear \"card expired\" reason from the issuer. No sanctions concern (scores 0.55 and 0.28), card is not lost/stolen, amount £64 is well under escalation threshold, merchant has been trading 915 days, and no prior referrals exist. The merchant's message contains no complaint or regulatory language. Straightforward issuer decline — guidance provided.",
+    "confidence": 0.92
+  },
+  "outcome": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "overridden": false,
+    "message_to_merchant": "Thank you for getting in touch. The payment was declined by the card issuer with the reason \"card expired.\" Please ask your customer to check whether a replacement card has been issued and to retry the payment using their updated card details. If the problem persists, the customer should contact their bank directly.",
+    "guardrails": [],
+    "facts": {
+      "lookup_failed": [],
+      "injection": false,
+      "complaint": false,
+      "sanctions_score": 0.55,
+      "new_with_spike": false,
+      "lost_or_stolen": false,
+      "amount_gbp": 64.0
+    }
+  },
+  "expected": {
+    "decision": "resolve",
+    "queue": null,
+    "rule": null,
+    "note": "Spike alone is not HR4: the merchant is two years old."
+  },
+  "tool_calls": 7,
+  "usage": {
+    "input_tokens": 7861,
+    "output_tokens": 1328
+  },
+  "seconds": 26.9
+}
