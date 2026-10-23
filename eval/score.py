@@ -26,7 +26,8 @@ def match(decision, queue, expected):
 def load(only_showcase: bool):
     cases = {c["id"]: c for c in json.loads((ROOT / "data" / "cases.json").read_text(encoding="utf-8"))}
     traces = []
-    for p in sorted((ROOT / "traces").glob("R*.json")):
+    folder = ROOT / "traces" / ("stress" if "--stress" in sys.argv else "")
+    for p in sorted(folder.glob("R*.json")):
         t = json.loads(p.read_text(encoding="utf-8"))
         if only_showcase and not t["showcase"]:
             continue
